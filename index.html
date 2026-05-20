@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inside Sales AE — Q2 2026 Walk-Back to Goal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh}
+
+/* ── HEADER ── */
+.app-header{background:linear-gradient(135deg,#1e293b 0%,#0f3460 100%);color:white;padding:16px 32px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
+.hdr-left h1{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.hdr-left p{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px}
+.hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hdr-btn{padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-export{background:#3b82f6;color:white}.btn-export:hover{background:#2563eb}
+.btn-share{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3)}.btn-share:hover{background:rgba(255,255,255,.25)}
+.btn-import{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.2);font-size:11px}.btn-import:hover{background:rgba(255,255,255,.2)}
+
+/* ── SHARE MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:12px;padding:24px;width:90%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h3{font-size:15px;font-weight:700;margin-bottom:12px}
+.modal p{font-size:12px;color:#64748b;margin-bottom:12px;line-height:1.5}
+.modal textarea{width:100%;height:80px;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:11px;font-family:monospace;resize:vertical;margin-bottom:10px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.modal-btns button{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none}
+.btn-primary{background:#3b82f6;color:white}.btn-primary:hover{background:#2563eb}
+.btn-ghost{background:#f1f5f9;color:#475569}.btn-ghost:hover{background:#e2e8f0}
+.share-tip{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:10px 12px;font-size:11px;color:#065f46;margin-bottom:12px}
+
+/* ── TAB NAVIGATION ── */
+.tab-nav-wrap{background:white;border-bottom:2px solid #e2e8f0;padding:0 32px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-nav{display:flex;gap:4px;min-width:max-content}
+.tab-link{display:flex;align-items:center;gap:8px;padding:14px 20px;text-decoration:none;font-size:13px;font-weight:600;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;border-top:none;border-left:none;border-right:none;background:none;transition:all .15s;white-space:nowrap}
+.tab-link:hover{color:#1e293b;border-bottom-color:#cbd5e1}
+.tab-link.active{color:#1e293b;border-bottom-color:var(--tc)}
+.tab-dot{width:10px;height:10px;border-radius:50%;background:var(--tc);flex-shrink:0}
+.tab-link .tab-label{line-height:1}
+.tab-link .tab-sub{font-size:10px;font-weight:500;color:#94a3b8;margin-top:1px}
+
+/* ── PANES ── */
+.tab-pane{display:none;padding:24px 32px;max-width:1440px;margin:0 auto}
+.tab-pane.active{display:block}
+
+/* ── TEAM HEADER ── */
+.team-hdr{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.team-dot{width:15px;height:15px;border-radius:50%;flex-shrink:0}
+.team-hdr h2{font-size:20px;font-weight:800}
+.team-hdr .meta{font-size:12px;color:#64748b;margin-top:1px}
+
+/* ── GAP ALERT ── */
+.gap-alert{border-radius:10px;padding:14px 20px;margin-bottom:18px;border:1px solid}
+.ga-critical{background:#fff1f2;border-color:#fecdd3}
+.ga-warn{background:#fffbeb;border-color:#fde68a}
+.ga-ok{background:#f0fdf4;border-color:#bbf7d0}
+.ga-critical h4,.ga-critical .gn{color:#9f1239}
+.ga-critical p{color:#881337}
+.ga-warn h4,.ga-warn .gn{color:#92400e}
+.ga-warn p{color:#78350f}
+.gap-alert h4{font-size:13px;font-weight:700;margin-bottom:4px}
+.gn{font-size:20px;font-weight:800}
+.gap-alert p{font-size:12px;line-height:1.6}
+
+/* ── KPI ROW ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:white;border-radius:9px;padding:14px 16px;border:1px solid #e2e8f0}
+.kpi-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#64748b;margin-bottom:5px}
+.kpi-val{font-size:24px;font-weight:800;line-height:1;letter-spacing:-.5px}
+.kv-bad{color:#dc2626}.kv-warn{color:#d97706}.kv-ok{color:#059669}.kv-blue{color:#2563eb}.kv-def{color:#1e293b}
+.kpi-sub{font-size:11px;color:#94a3b8;margin-top:4px}
+
+/* ── CARDS ── */
+.card{background:white;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:18px}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#64748b;padding:12px 16px 10px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center}
+.card-body{padding:16px}
+.two-col{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:18px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+.chart-wrap{height:260px;position:relative}
+
+/* ── TABLES ── */
+.wt{width:100%;border-collapse:collapse;font-size:12px}
+.wt th{background:#1e293b;color:rgba(255,255,255,.8);padding:8px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.wt th:first-child,.wt th.left{text-align:left}
+.wt td{padding:8px 12px;text-align:right;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.wt td:first-child{text-align:left;font-weight:600}
+.tr-past td{background:white}.tr-past:hover td{background:#f8fafc}
+.tr-cur td{background:#fffbeb}
+.tr-fut td{background:#eff6ff}
+.wt tfoot td{font-weight:800;background:#f8fafc;border-top:2px solid #1e293b}
+.wt tfoot{border-top:2px solid #1e293b}
+
+/* ── EDITABLE INPUTS ── */
+.week-input{width:62px;padding:5px 6px;border:1px dashed #94a3b8;border-radius:5px;font-size:12px;font-weight:700;text-align:center;background:#fafafa;color:#1e293b;transition:all .15s}
+.week-input:focus{outline:none;border:2px solid #3b82f6;background:white;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.week-input.filled{background:#dcfce7;border:1px solid #86efac;color:#166534}
+.week-input::placeholder{color:#cbd5e1;font-weight:400}
+.edit-hint{font-size:10px;color:#94a3b8;margin-top:4px;text-align:right;padding-right:12px}
+
+/* ── BADGES / CHIPS ── */
+.badge{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700}
+.b-past{background:#f1f5f9;color:#475569}
+.b-cur{background:#fef3c7;color:#92400e}
+.b-fut{background:#dbeafe;color:#1d4ed8}
+.chip{display:inline-block;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700}
+.cp{background:#dcfce7;color:#166534}.cn{background:#fee2e2;color:#991b1b}
+.cw{background:#fef3c7;color:#92400e}.cb{background:#dbeafe;color:#1e40af}
+.cg{background:#f3e8ff;color:#6b21a8}
+
+/* ── SAVE INDICATOR ── */
+.save-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-left:6px;opacity:0;transition:opacity .3s}
+.save-dot.show{opacity:1}
+
+/* ── CW/REP SCENARIO TABLE ── */
+.cwsc-committed td{background:#f0fdf4!important}
+.cwsc-committed td:first-child{border-left:3px solid #16a34a}
+.cwsc-check{width:18px;height:18px;cursor:pointer;accent-color:#16a34a;display:block;margin:0 auto}
+
+/* ── STRATEGY CHECKBOXES ── */
+.strategy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;padding:12px 16px 16px}
+.strategy-item{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;border-radius:7px;border:1.5px solid #e2e8f0;background:#f8fafc;cursor:pointer;transition:all .15s;user-select:none}
+.strategy-item:hover{border-color:#93c5fd;background:#eff6ff}
+.strategy-item.sel{border-color:#86efac;background:#f0fdf4}
+.strategy-item input[type=checkbox]{width:16px;height:16px;accent-color:#16a34a;flex-shrink:0;margin-top:1px;cursor:pointer}
+.strategy-item label{font-size:12px;font-weight:600;color:#1e293b;cursor:pointer;line-height:1.3;pointer-events:none}
+
+/* ── PIPELINE STATUS WIDGET ── */
+.pipeline-widget{background:white;border:1px solid #e2e8f0;border-radius:9px;padding:10px 14px;min-width:220px;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.pw-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#64748b;margin-bottom:8px;line-height:1.3}
+.pipeline-opts{display:flex;gap:8px}
+.pipeline-opt{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 10px;border-radius:6px;border:2px solid #e2e8f0;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;background:white;color:#64748b}
+.pipeline-opt:hover{border-color:#93c5fd;background:#eff6ff}
+.pipeline-opt.active-yes{border-color:#16a34a;background:#f0fdf4;color:#15803d}
+.pipeline-opt.active-no{border-color:#dc2626;background:#fff1f2;color:#b91c1c}
+
+/* ── INITIATIVE INPUT ── */
+.init-input{width:145px;padding:5px 7px;border:1px dashed #94a3b8;border-radius:5px;font-size:11px;font-weight:500;background:#fafafa;color:#1e293b;transition:all .15s}
+.init-input:focus{outline:none;border:1.5px solid #3b82f6;background:white;box-shadow:0 0 0 2px rgba(59,130,246,.1)}
+.init-input.filled{background:#fef9c3;border:1px solid #fbbf24;color:#78350f}
+
+footer{text-align:center;padding:14px;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:4px}
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="app-header">
+  <div class="hdr-left">
+    <h1>Inside Sales Core AE — Q2 2026 Walk-Back to Goal</h1>
+    <p>Regional Lead: Gary Biscoe &nbsp;·&nbsp; Active HC: 23 &nbsp;·&nbsp; Data through 5/18/2026 &nbsp;·&nbsp; Future results editable</p>
+  </div>
+  <div class="hdr-right">
+    <button class="hdr-btn btn-import" onclick="openImport()">📥 Import Data</button>
+    <button class="hdr-btn btn-share" onclick="openShare()">📤 Share Data</button>
+    <button class="hdr-btn btn-export" onclick="downloadUpdatedPage()">⬇ Download Updated Page</button>
+    <span class="save-dot" id="save-dot"></span>
+  </div>
+</div>
+
+<!-- ══════════ TAB NAVIGATION ══════════ -->
+<div class="tab-nav-wrap">
+  <div class="tab-nav">
+    <button class="tab-link active" style="--tc:#1e293b" onclick="switchTab('all',this)">
+      <span class="tab-dot"></span>
+      <div><div class="tab-label">Inside Sales Overall</div><div class="tab-sub">All Teams — Q2 Org View</div></div>
+    </button>
+    <button class="tab-link" style="--tc:#7c3aed" onclick="switchTab('anthony',this)">
+      <span class="tab-dot"></span>
+      <div><div class="tab-label">Anthony Zasa</div><div class="tab-sub">Manager Walk-Back</div></div>
+    </button>
+    <button class="tab-link" style="--tc:#ea580c" onclick="switchTab('derek',this)">
+      <span class="tab-dot"></span>
+      <div><div class="tab-label">Derek Beckett</div><div class="tab-sub">Manager Walk-Back</div></div>
+    </button>
+    <button class="tab-link" style="--tc:#2563eb" onclick="switchTab('heath',this)">
+      <span class="tab-dot"></span>
+      <div><div class="tab-label">Heath Hockett</div><div class="tab-sub">Manager Walk-Back</div></div>
+    </button>
+    <button class="tab-link" style="--tc:#059669" onclick="switchTab('jose',this)">
+      <span class="tab-dot"></span>
+      <div><div class="tab-label">Jose Valdez</div><div class="tab-sub">Manager Walk-Back</div></div>
+    </button>
+    <button class="tab-link" style="--tc:#0891b2" onclick="switchTab('michael',this)">
+      <span class="tab-dot"></span>
+      <div><div class="tab-label">Michael Hayes</div><div class="tab-sub">Manager Walk-Back</div></div>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════ PANES ══════════ -->
+<div id="pane-all" class="tab-pane active"></div>
+<div id="pane-anthony" class="tab-pane"></div>
+<div id="pane-derek" class="tab-pane"></div>
+<div id="pane-heath" class="tab-pane"></div>
+<div id="pane-jose" class="tab-pane"></div>
+<div id="pane-michael" class="tab-pane"></div>
+
+<!-- ══════════ SHARE MODAL ══════════ -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal">
+    <h3>📤 Share Weekly Results</h3>
+    <div class="share-tip">💡 <b>How to share with the team:</b> Copy the data string below and paste it into a DoorDash Slack message, email, or shared Google Doc. Anyone can click "Import Data" and paste it in to see your latest results.</div>
+    <p>Shareable data string (copy and send this):</p>
+    <textarea id="share-output" readonly></textarea>
+    <p style="margin-bottom:8px"><b>Hosting tip:</b> For a live team page, upload this HTML file to Google Drive and enable link sharing — all DoorDash members can open and view it.</p>
+    <div class="modal-btns">
+      <button class="btn-ghost" onclick="closeModal('share-modal')">Close</button>
+      <button class="btn-primary" onclick="copyShareData()">Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="import-modal">
+  <div class="modal">
+    <h3>📥 Import Shared Results</h3>
+    <p>Paste the data string shared by your team lead to load the latest weekly results:</p>
+    <textarea id="import-input" placeholder="Paste the shared data string here..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-ghost" onclick="closeModal('import-modal')">Cancel</button>
+      <button class="btn-primary" onclick="doImport()">Import & Update</button>
+    </div>
+  </div>
+</div>
+
+<footer>Inside Sales Core AE &nbsp;·&nbsp; Q2 2026 Walk-Back to Goal &nbsp;·&nbsp; Gary Biscoe, Regional Lead &nbsp;·&nbsp; Active HC: 23 &nbsp;·&nbsp; Enter weekly results using the input fields in each manager's tab</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  REPLACEABLE DATA PLACEHOLDER — DO NOT RENAME THIS LINE
+// ══════════════════════════════════════════════════════════
+var PRELOADED_DATA = null;
+
+// ══════════════════════════════════════════════════════════
+//  CONSTANTS
+// ══════════════════════════════════════════════════════════
+const WEEKS   = ['4/1','4/6','4/13','4/20','4/27','5/4','5/11','5/18','5/25','6/1','6/8','6/15','6/22','6/29'];
+const STATUS  = ['past','past','past','past','past','past','past','current','future','future','future','future','future','future'];
+const EDITABLE = [7,8,9,10,11,12,13]; // 5/18 (in-progress) through 6/29
+
+const TEAMS = {
+  anthony:{ key:'anthony', name:'Anthony Zasa', hc:3, color:'#7c3aed',
+    goal:145, qtd_locked:62, // sum of indices 0-6
+    origGoals:[5,10,13,13,14,14,13,11,8,14,12,9,8,0],
+    actuals_locked:[7,7,8,8,8,13,11], // indices 0-6 locked
+    adjFuture:[null,null,null,null,null,null,null,null,14,24,21,16,14,0],
+    cwRep:[1.8,2.3,2.7,2.7,2.7,4.3,3.7,1.0],
+    cwGoal:[1.5,2.8,3.6,3.7,3.9,3.9,3.6,2.6,2.3,3.8,3.2,2.6,2.1,0]
+  },
+  derek:{ key:'derek', name:'Derek Beckett', hc:9, color:'#ea580c',
+    goal:426, qtd_locked:212, // sum of indices 0-6
+    origGoals:[16,30,39,40,42,42,39,31,24,41,35,28,22,0],
+    actuals_locked:[25,31,36,27,29,28,36],
+    adjFuture:[null,null,null,null,null,null,null,null,36,62,53,41,33,0],
+    cwRep:[2.8,4.4,4.5,3.4,3.2,3.5,4.0,2.0],
+    cwGoal:[1.8,3.5,4.4,4.5,4.8,4.8,4.4,3.5,2.8,4.7,4.0,3.2,2.5,0]
+  },
+  heath:{ key:'heath', name:'Heath Hockett', hc:4, color:'#2563eb',
+    goal:192, qtd_locked:84, // sum of indices 0-6
+    origGoals:[7,14,17,18,19,19,17,14,11,18,16,12,10,0],
+    actuals_locked:[9,14,12,12,15,15,7],
+    adjFuture:[null,null,null,null,null,null,null,null,19,31,28,21,17,0],
+    cwRep:[2.3,2.8,3.0,3.0,3.0,2.7,2.6,0.5],
+    cwGoal:[1.4,2.6,3.4,3.4,3.6,3.7,3.4,2.7,2.1,3.6,3.0,2.4,1.9,0]
+  },
+  jose:{ key:'jose', name:'Jose Valdez', hc:2, color:'#059669',
+    goal:192, qtd_locked:37, // sum of indices 0-6
+    origGoals:[7,14,17,18,19,19,17,13,11,18,16,12,10,0],
+    actuals_locked:[3,7,5,6,6,6,4],
+    adjFuture:[null,null,null,null,null,null,null,null,27,45,40,30,25,0],
+    cwRep:[1.5,3.5,1.7,1.5,3.0,2.0,1.3,1.0],
+    cwGoal:[1.8,3.5,4.5,4.6,4.8,4.9,4.5,3.6,2.8,4.7,4.0,3.2,2.6,0]
+  },
+  michael:{ key:'michael', name:'Michael Hayes', hc:4, color:'#0891b2',
+    goal:159, qtd_locked:78, // sum of indices 0-6
+    origGoals:[6,11,14,14,16,16,14,12,9,15,13,10,8,0],
+    actuals_locked:[8,15,14,10,12,10,9],
+    adjFuture:[null,null,null,null,null,null,null,null,14,24,21,16,13,0],
+    cwRep:[2.0,3.8,3.5,2.0,3.0,2.5,2.3,1.0],
+    cwGoal:[1.7,3.3,4.2,4.3,4.5,4.5,4.2,3.3,2.6,4.4,3.7,3.0,2.4,0]
+  }
+};
+const TEAM_ORDER = ['anthony','derek','heath','jose','michael'];
+const ORG_GOAL = 1173;
+const ORG_AHC  = 23;
+
+// Org-level locked actuals (weeks 0-6, indices match WEEKS array)
+const ORG_LOCKED_ACTUALS = [52,74,75,66,70,65,73]; // total = 475
+// Org-level adjusted walk-back targets for remaining weeks
+const ORG_ADJ_WEEK_TARGETS = [null,null,null,null,null,null,null,null,110,186,163,124,102,0];
+const ORG_WEEK7_DEFAULT = 13; // partial 5/18 week known total
+
+// Pre-filled values for week index 7 (5/18 partial) — per-team
+const WEEK7_DEFAULTS = { anthony:2, derek:8, heath:2, jose:2, michael:1 };
+
+// ══════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════
+function defaultResults() {
+  const r={};
+  TEAM_ORDER.forEach(k=>{ r[k]={}; EDITABLE.forEach(i=>{ r[k][i]= i===7 ? WEEK7_DEFAULTS[k] : null; }); });
+  // Org-level independent tracking (separate from individual team entries)
+  r.org={}; EDITABLE.forEach(i=>{ r.org[i] = i===7 ? ORG_WEEK7_DEFAULT : null; });
+  return r;
+}
+function ensureOrgKey(r){
+  if(!r.org){ r.org={}; EDITABLE.forEach(i=>{ r.org[i]=i===7?ORG_WEEK7_DEFAULT:null; }); }
+  return r;
+}
+function loadStorage() { try{ return JSON.parse(localStorage.getItem('ae_q2_wb_2026')); }catch(e){return null;} }
+function saveStorage() { try{ localStorage.setItem('ae_q2_wb_2026', JSON.stringify(RESULTS)); }catch(e){} flashSave(); }
+
+let RESULTS = ensureOrgKey(PRELOADED_DATA || loadStorage() || defaultResults());
+
+function flashSave(){
+  const d=document.getElementById('save-dot');
+  if(!d)return; d.classList.add('show');
+  setTimeout(()=>d.classList.remove('show'),1500);
+}
+
+// ══════════════════════════════════════════════════════════
+//  DATA HELPERS
+// ══════════════════════════════════════════════════════════
+function getActual(k,i){
+  if(i<7) return TEAMS[k].actuals_locked[i];
+  return RESULTS[k] && RESULTS[k][i] != null ? RESULTS[k][i] : null;
+}
+function getFullActuals(k){ return WEEKS.map((_,i)=>getActual(k,i)); }
+function getRunQTD(k){ return WEEKS.reduce((s,_,i)=>{ const v=getActual(k,i); return s+(v!=null?v:0); },0); }
+function getOrgQTD(){ return TEAM_ORDER.reduce((s,k)=>s+getRunQTD(k),0); }
+
+function buildCumul(k){
+  let cum=0, arr=[];
+  WEEKS.forEach((_,i)=>{
+    const v=getActual(k,i);
+    if(v!=null){ cum+=v; arr.push(cum); }
+    else arr.push(null);
+  });
+  return arr;
+}
+function buildAdjPath(k){
+  const T=TEAMS[k];
+  let base=TEAMS[k].actuals_locked.reduce((s,v)=>s+v,0); // locked QTD (0-6)
+  return WEEKS.map((_,i)=>{
+    if(i<7) return null;
+    const actual=getActual(k,i);
+    if(actual!=null){ base+=actual; return base; }
+    // project forward with adj targets
+    base+=(T.adjFuture[i]||0);
+    return base;
+  });
+}
+function buildOrgCumul(){
+  let cum=0; return WEEKS.map((_,i)=>{
+    const tot=TEAM_ORDER.reduce((s,k)=>{ const v=getActual(k,i); return s+(v!=null?v:0); },0);
+    const allEntered=TEAM_ORDER.every(k=>getActual(k,i)!=null);
+    if(i<7||allEntered){ cum+=tot; return cum; } return null;
+  });
+}
+function buildOrgAdjPath(){
+  let base=TEAM_ORDER.reduce((s,k)=>s+TEAMS[k].qtd_locked,0); // 473 (locked 0-6)
+  return WEEKS.map((_,i)=>{
+    if(i<7) return null;
+    const tots=TEAM_ORDER.reduce((s,k)=>{ const v=getActual(k,i); return s+(v!=null?v:0); },0);
+    const allEntered=TEAM_ORDER.every(k=>getActual(k,i)!=null);
+    if(allEntered){ base+=tots; return base; }
+    // projected: use entered teams + adj for remaining
+    const proj=TEAM_ORDER.reduce((s,k)=>{ const v=getActual(k,i); return s+(v!=null?v:(TEAMS[k].adjFuture[i]||0)); },0);
+    base+=proj; return base;
+  });
+}
+function buildOrgOrigGoal(){
+  let cum=0; return WEEKS.map((_,i)=>{ cum+=TEAM_ORDER.reduce((s,k)=>s+TEAMS[k].origGoals[i],0); return cum; });
+}
+
+// ══════════════════════════════════════════════════════════
+//  HANDLE INPUT CHANGE
+// ══════════════════════════════════════════════════════════
+function onInput(k,i,val){
+  const v=(val===''||val==null)?null:Math.max(0,parseInt(val)||0);
+  if(!RESULTS[k]) RESULTS[k]={};
+  RESULTS[k][i]=v;
+  saveStorage();
+  const inp=document.getElementById(`inp-${k}-${i}`);
+  if(inp){ inp.classList.toggle('filled', v!=null); if(v!=null)inp.value=v; }
+  refreshAllKPIs();
+  refreshAllCharts();
+  refreshCumulCells();
+  refreshCWScenarioTable(k);
+}
+
+// ══════════════════════════════════════════════════════════
+//  REFRESH FUNCTIONS
+// ══════════════════════════════════════════════════════════
+function refreshAllKPIs(){
+  TEAM_ORDER.forEach(k=>{
+    const qtd=getRunQTD(k); const gap=TEAMS[k].goal-qtd;
+    const pct=Math.round(qtd/TEAMS[k].goal*100);
+    const adjNeed=TEAMS[k].adjFuture.reduce((s,v)=>s+(v||0),0);
+    const reqCW=(gap/(TEAMS[k].hc*6)).toFixed(1);
+    setEl(`kpi-qtd-${k}`,qtd);
+    setEl(`kpi-gap-${k}`,gap);
+    setEl(`kpi-pct-${k}`,pct+'%');
+    setEl(`kpi-gap-alert-${k}`,gap);
+    setEl(`kpi-req-cw-${k}`,reqCW+'×');
+    // remaining sign count in gap alert
+    const gaEl=document.getElementById(`ga-adjneed-${k}`);
+    if(gaEl) gaEl.textContent=gap; // remaining gap is current gap
+  });
+  // Org KPIs
+  const orgQTD=getOrgQTD(); const orgGap=ORG_GOAL-orgQTD;
+  setEl('kpi-org-qtd',orgQTD);
+  setEl('kpi-org-gap',orgGap);
+  setEl('kpi-org-pct',Math.round(orgQTD/ORG_GOAL*100)+'%');
+  const orgReqCW=(orgGap/(ORG_AHC*6)).toFixed(1);
+  setEl('kpi-org-reqcw',orgReqCW+'×');
+  // refresh CW scenario projections (updates as results are entered)
+  refreshCWScenarioTable('org');
+}
+
+function setEl(id,val){ const e=document.getElementById(id); if(e) e.textContent=val; }
+
+function refreshCumulCells(){
+  TEAM_ORDER.forEach(k=>{
+    const cumul=buildCumul(k);
+    WEEKS.forEach((_,i)=>{
+      const el=document.getElementById(`cumul-${k}-${i}`);
+      if(el && cumul[i]!=null) el.textContent=cumul[i];
+      const gap=TEAMS[k].goal-(cumul[i]||0);
+      const gEl=document.getElementById(`rem-${k}-${i}`);
+      if(gEl) gEl.innerHTML=gap>0?`<span class="chip cn">-${gap}</span>`:'<span class="chip cp">✓</span>';
+    });
+    // update team running QTD in combined table
+    const orgCumul=buildOrgCumul();
+    WEEKS.forEach((_,i)=>{
+      const el=document.getElementById(`org-cumul-${i}`);
+      if(el && orgCumul[i]!=null) el.textContent=orgCumul[i];
+      const gEl=document.getElementById(`org-rem-${i}`);
+      if(gEl){ const g=ORG_GOAL-(orgCumul[i]||0); gEl.innerHTML=g>0?`<span class="chip cn">-${g}</span>`:'<span class="chip cp">✓</span>'; }
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  CHARTS
+// ══════════════════════════════════════════════════════════
+const charts={};
+function refreshAllCharts(){
+  TEAM_ORDER.forEach(k=>{ if(charts[`main-${k}`]) renderTeamChart(k); });
+  if(charts['all']) renderAllChart();
+}
+
+function renderTeamChart(k){
+  const T=TEAMS[k];
+  const ctx=document.getElementById(`chart-${k}`); if(!ctx) return;
+  if(charts[`main-${k}`]){charts[`main-${k}`].destroy(); delete charts[`main-${k}`];}
+  const cumul=buildCumul(k); const adj=buildAdjPath(k);
+  let cumGoal=0; const goalLine=WEEKS.map((_,i)=>{cumGoal+=T.origGoals[i];return cumGoal;});
+  charts[`main-${k}`]=new Chart(ctx,{type:'line',data:{labels:WEEKS,datasets:[
+    {label:'Actual',data:cumul,borderColor:T.color,backgroundColor:T.color+'18',fill:true,borderWidth:2.5,pointRadius:4,tension:.3},
+    {label:'Adj Path / Proj',data:adj,borderColor:'#3b82f6',borderDash:[6,3],borderWidth:2,pointRadius:4,pointBackgroundColor:'#3b82f6',fill:false,tension:.3},
+    {label:'Orig Goal',data:goalLine,borderColor:'#94a3b8',borderDash:[3,2],borderWidth:1.5,pointRadius:2,fill:false,tension:.3}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{grid:{color:'#f1f5f9'},ticks:{font:{size:9}},min:0}}}});
+
+  // CW/Rep bar chart
+  const ctx2=document.getElementById(`cwchart-${k}`); if(!ctx2) return;
+  if(charts[`cw-${k}`]){charts[`cw-${k}`].destroy(); delete charts[`cw-${k}`];}
+  const cwA=WEEKS.map((_,i)=>T.cwRep[i]!=null?T.cwRep[i]:null);
+  charts[`cw-${k}`]=new Chart(ctx2,{type:'bar',data:{labels:WEEKS,datasets:[
+    {label:'CW/Rep',data:cwA,backgroundColor:WEEKS.map((_,i)=>{const a=T.cwRep[i];const g=T.cwGoal[i];return a!=null?(a>=g?'#22c55e':'#ef4444'):'transparent';}),borderRadius:3,order:1},
+    {label:'Goal',data:T.cwGoal,type:'line',borderColor:'#94a3b8',borderDash:[3,2],borderWidth:1.5,pointRadius:2,fill:false,order:0}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{grid:{color:'#f1f5f9'},ticks:{font:{size:9}},min:0}}}});
+}
+
+function renderAllChart(){
+  const ctx=document.getElementById('chart-all'); if(!ctx) return;
+  if(charts['all']){charts['all'].destroy(); delete charts['all'];}
+  const cumul=buildOrgCumul(); const adj=buildOrgAdjPath(); const origGoal=buildOrgOrigGoal();
+  charts['all']=new Chart(ctx,{type:'line',data:{labels:WEEKS,datasets:[
+    {label:'QTD Actuals',data:cumul,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:true,borderWidth:2.5,pointRadius:4,tension:.3},
+    {label:'Projected Path',data:adj,borderColor:'#3b82f6',borderDash:[6,3],borderWidth:2,pointRadius:4,pointBackgroundColor:'#3b82f6',fill:false,tension:.3},
+    {label:'Baseline Pace',data:origGoal,borderColor:'#f59e0b',borderDash:[4,3],borderWidth:1.5,pointRadius:2,fill:false,tension:.3},
+    {label:'Quarterly Goal (1,173)',data:WEEKS.map(()=>ORG_GOAL),borderColor:'#059669',borderDash:[2,2],borderWidth:1.5,pointRadius:0,fill:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10,boxWidth:12}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f1f5f9'},ticks:{font:{size:10}},min:0,max:1400}}}});
+}
+
+// ══════════════════════════════════════════════════════════
+//  ORG-LEVEL MANUAL INPUT HELPERS
+// ══════════════════════════════════════════════════════════
+function getOrgWeekActual(i){
+  if(i<7) return ORG_LOCKED_ACTUALS[i];
+  return (RESULTS.org && RESULTS.org[i]!=null) ? RESULTS.org[i] : null;
+}
+
+function onOrgInput(i, val){
+  const v=(val===''||val==null)?null:Math.max(0,parseInt(val)||0);
+  if(!RESULTS.org) RESULTS.org={};
+  RESULTS.org[i]=v;
+  saveStorage();
+  refreshOrgWalkbackTable();
+}
+
+function refreshOrgWalkbackTable(){
+  let cum=ORG_LOCKED_ACTUALS.reduce((s,v)=>s+v,0); // 475 locked
+  for(let i=7;i<14;i++){
+    const v=getOrgWeekActual(i);
+    const inp=document.getElementById(`org-inp-${i}`);
+    if(inp){ inp.classList.toggle('filled', v!=null); if(v!=null&&inp!==document.activeElement) inp.value=v; }
+    if(v!=null) cum+=v;
+    const hasVal=v!=null;
+    const cEl=document.getElementById(`orgwt-cumul-${i}`);
+    if(cEl) cEl.textContent=hasVal?cum:'—';
+    const adj=ORG_ADJ_WEEK_TARGETS[i]||0;
+    const vsEl=document.getElementById(`orgwt-vs-${i}`);
+    if(vsEl&&hasVal){ const d=v-adj; vsEl.innerHTML=`<span class="chip ${d>=0?'cp':'cn'}">${d>=0?'+':''}${d}</span>`; }
+    const gEl=document.getElementById(`orgwt-rem-${i}`);
+    if(gEl) gEl.innerHTML=hasVal?(ORG_GOAL-cum>0?`<span class="chip cn">-${ORG_GOAL-cum}</span>`:'<span class="chip cp">✓</span>'):'<span style="color:#94a3b8">—</span>';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  STRATEGY TACTICS
+// ══════════════════════════════════════════════════════════
+const STRATEGIES=[
+  {key:'incentives',  label:'Incentives'},
+  {key:'tofu',        label:'Increased TOFU'},
+  {key:'ao_blocks',   label:'AO Call Blocks'},
+  {key:'ll_100',      label:'Requiring 100% LL Penetration'},
+  {key:'work_ll',     label:'Working Off LL'},
+  {key:'ipas',        label:"Increased IPA's"},
+  {key:'leader_2v',   label:'Leader 2nd Voice Call Blocks'},
+  {key:'referrals',   label:'Requiring Referrals On Every CW'},
+];
+
+function getStrategies(k){
+  if(!RESULTS.strategies) RESULTS.strategies={};
+  if(!RESULTS.strategies[k]){
+    const o={}; STRATEGIES.forEach(s=>o[s.key]=true); // default all checked
+    RESULTS.strategies[k]=o;
+  }
+  return RESULTS.strategies[k];
+}
+function toggleStrategy(k,stratKey){
+  const s=getStrategies(k); s[stratKey]=!s[stratKey];
+  saveStorage(); refreshStrategyPanel(k);
+}
+function refreshStrategyPanel(k){
+  const strats=getStrategies(k);
+  STRATEGIES.forEach(s=>{
+    const chk=document.getElementById(`strat-${k}-${s.key}`);
+    if(!chk) return;
+    const sel=strats[s.key];
+    chk.checked=sel;
+    const item=chk.closest('.strategy-item');
+    if(item) item.classList.toggle('sel',sel);
+  });
+  // update committed tactics summary line
+  const sumEl=document.getElementById(`strat-summary-${k}`);
+  if(sumEl){
+    const active=STRATEGIES.filter(s=>strats[s.key]).map(s=>s.label);
+    sumEl.innerHTML='<b>Committed tactics:</b> '+(active.length?active.join(' &nbsp;·&nbsp; '):'<span style="color:#94a3b8">None selected</span>');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  PIPELINE STATUS
+// ══════════════════════════════════════════════════════════
+function getPipelineStatus(k){
+  if(!RESULTS.pipeline) RESULTS.pipeline={};
+  return RESULTS.pipeline[k]||null; // 'yes' | 'no' | null
+}
+function setPipelineStatus(k,val){
+  if(!RESULTS.pipeline) RESULTS.pipeline={};
+  RESULTS.pipeline[k]=val; saveStorage();
+  refreshPipelineWidget(k);
+}
+function refreshPipelineWidget(k){
+  const v=getPipelineStatus(k);
+  ['yes','no'].forEach(opt=>{
+    const el=document.getElementById(`pipe-${k}-${opt}`);
+    if(!el) return;
+    el.classList.remove('active-yes','active-no');
+    if(v===opt) el.classList.add(`active-${opt}`);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  ORG INITIATIVES (per week text notes)
+// ══════════════════════════════════════════════════════════
+function getInitiative(i){
+  if(!RESULTS.initiatives) RESULTS.initiatives={};
+  return RESULTS.initiatives[i]||'';
+}
+function onInitiativeInput(i,val){
+  if(!RESULTS.initiatives) RESULTS.initiatives={};
+  RESULTS.initiatives[i]=val||''; saveStorage();
+  const inp=document.getElementById(`init-inp-${i}`);
+  if(inp) inp.classList.toggle('filled',!!(val&&val.trim()));
+}
+
+// ══════════════════════════════════════════════════════════
+//  CW/REP SCENARIO PLANNER
+// ══════════════════════════════════════════════════════════
+const CW_SCENARIOS=[3.0,3.5,4.0,4.5,5.0];            // org-level (5 rows)
+const TEAM_CW_SCENARIOS=[2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0]; // manager-level (9 rows)
+const CW_REM_WEEKS=6; // 5/25 through 6/29
+
+// key = 'org' | team key (e.g. 'anthony')
+function getCWCommit(key){
+  // Migrate old flat-array format to keyed object
+  if(!RESULTS.cwcommit||Array.isArray(RESULTS.cwcommit)){
+    const old=Array.isArray(RESULTS.cwcommit)?RESULTS.cwcommit:null;
+    RESULTS.cwcommit={};
+    if(old) RESULTS.cwcommit['org']=old;
+  }
+  const scens=key==='org'?CW_SCENARIOS:TEAM_CW_SCENARIOS;
+  return RESULTS.cwcommit[key]||scens.map(()=>false);
+}
+
+function toggleCWCommit(key,idx){
+  const arr=getCWCommit(key).slice();
+  arr[idx]=!arr[idx];
+  if(!RESULTS.cwcommit||Array.isArray(RESULTS.cwcommit)) RESULTS.cwcommit={};
+  RESULTS.cwcommit[key]=arr; saveStorage();
+  refreshCWScenarioTable(key);
+}
+
+// hc = headcount, goal = team/org goal, key = namespace for element IDs
+function cwScenarioRow(cw,idx,qtd,commit,hc,goal,key){
+  const spw=Math.round(cw*hc);
+  const sixWk=spw*CW_REM_WEEKS;
+  const eog=qtd+sixWk;
+  const vs=eog-goal;
+  const pct=Math.round(eog/goal*100);
+  const sc=vs>=0?'cp':pct>=95?'cw':pct>=80?'cw':'cn';
+  const st=vs>=0?'✓ Goal Hit':pct>=95?'≈ Near Goal':'Shortfall';
+  const chk=commit[idx];
+  return `<tr class="${chk?'cwsc-committed':''}" id="cwsc-row-${key}-${idx}">
+    <td style="text-align:center"><input type="checkbox" class="cwsc-check" id="cwsc-chk-${key}-${idx}" ${chk?'checked':''} onchange="toggleCWCommit('${key}',${idx})"></td>
+    <td style="font-size:14px;font-weight:800;color:${vs>=0?'#059669':'#1e293b'}">${cw.toFixed(1)}×</td>
+    <td>${spw} signs/wk</td>
+    <td>${sixWk}</td>
+    <td style="font-size:14px;font-weight:800">${eog.toLocaleString()}</td>
+    <td><span class="chip ${vs>=0?'cp':'cn'}">${vs>=0?'+':''}${vs}</span></td>
+    <td>${pct}%</td>
+    <td><span class="chip ${sc}">${st}</span></td>
+  </tr>`;
+}
+
+function buildCommitSummaryHTML(qtd,commit,hc,goal,key){
+  const scens=key==='org'?CW_SCENARIOS:TEAM_CW_SCENARIOS;
+  const committed=scens.filter((_,i)=>commit[i]);
+  if(committed.length===0) return {hasAny:false,html:'<p style="color:#94a3b8;font-style:italic;font-size:12px">No commitment selected — check one or more CW/Rep targets above to generate your commitment summary for leadership.</p>'};
+  const lines=committed.map(cw=>{
+    const eog=qtd+Math.round(cw*hc)*CW_REM_WEEKS;
+    const vs=eog-goal;
+    const pct=Math.round(eog/goal*100);
+    return `<p style="margin:3px 0;font-size:12px">• <b>${cw.toFixed(1)}× CW/Rep</b> &nbsp;→&nbsp; <b>${eog.toLocaleString()} projected signs</b> &nbsp;(${pct}% of goal &nbsp;·&nbsp; ${vs>=0?'<span style="color:#059669;font-weight:700">+'+vs+' over goal ✓</span>':'<span style="color:#dc2626;font-weight:700">'+vs+' short</span>'})</p>`;
+  });
+  return {hasAny:true,html:`<div style="font-size:13px;font-weight:800;color:#065f46;margin-bottom:8px">✅ Commitment${committed.length>1?'s':''} to Director / Head of Sales</div>${lines.join('')}<p style="margin-top:10px;font-size:10px;color:#047857;border-top:1px solid #bbf7d0;padding-top:8px">Based on current QTD of <b>${qtd}</b> signs + ${CW_REM_WEEKS} remaining full weeks (5/25–6/29) × ${hc} active reps</p>`};
+}
+
+function refreshCWScenarioTable(key){
+  const isOrg=key==='org';
+  const scens=isOrg?CW_SCENARIOS:TEAM_CW_SCENARIOS;
+  const hc=isOrg?ORG_AHC:TEAMS[key].hc;
+  const goal=isOrg?ORG_GOAL:TEAMS[key].goal;
+  const qtd=isOrg?getOrgQTD():getRunQTD(key);
+  const commit=getCWCommit(key);
+  scens.forEach((cw,idx)=>{
+    const row=document.getElementById(`cwsc-row-${key}-${idx}`);
+    if(!row) return;
+    const tmp=document.createElement('tbody');
+    tmp.innerHTML=cwScenarioRow(cw,idx,qtd,commit,hc,goal,key);
+    row.replaceWith(tmp.firstElementChild);
+  });
+  const ftEl=document.getElementById(`cwsc-foot-qtd-${key}`);
+  if(ftEl) ftEl.textContent=qtd.toLocaleString();
+  const gapEl=document.getElementById(`cwsc-foot-gap-${key}`);
+  if(gapEl) gapEl.textContent='Remaining gap: '+(goal-qtd).toLocaleString()+' · Goal: '+goal.toLocaleString();
+  const panel=document.getElementById(`cwsc-commit-panel-${key}`);
+  if(panel){
+    const s=buildCommitSummaryHTML(qtd,commit,hc,goal,key);
+    panel.style.border=s.hasAny?'2px solid #16a34a':'1px dashed #cbd5e1';
+    panel.style.background=s.hasAny?'#f0fdf4':'#f8fafc';
+    panel.innerHTML=s.html;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  RENDER TEAM TAB
+// ══════════════════════════════════════════════════════════
+function renderTeamTab(k){
+  const T=TEAMS[k];
+  const qtd=getRunQTD(k); const gap=T.goal-qtd;
+  const pct=Math.round(qtd/T.goal*100);
+  const adjNeed=T.adjFuture.reduce((s,v)=>s+(v||0),0);
+  const reqCW=(gap/(T.hc*6)).toFixed(1);
+  const curCW=(T.cwRep.reduce((s,v)=>s+v,0)/T.cwRep.length).toFixed(1);
+  const alertCls=gap>100?'ga-critical':gap>30?'ga-warn':'ga-ok';
+  const cumul=buildCumul(k);
+
+  // Build rows
+  const rows = WEEKS.map((w,i)=>{
+    const s=STATUS[i];
+    const act=getActual(k,i);
+    const orig=T.origGoals[i];
+    const adj=T.adjFuture[i];
+    const cwr=T.cwRep[i]; const cwg=T.cwGoal[i];
+    const vsOrig=act!=null?act-orig:null;
+    const trCls=s==='past'?'tr-past':s==='current'?'tr-cur':'tr-fut';
+    const badge=s==='past'?'<span class="badge b-past">PAST</span>':s==='current'?'<span class="badge b-cur">CURRENT</span>':'<span class="badge b-fut">UPCOMING</span>';
+    const cumVal=cumul[i];
+    const remGap=cumVal!=null?T.goal-cumVal:null;
+
+    // Actual cell
+    let actCell;
+    if(EDITABLE.includes(i)){
+      const curVal=act!=null?act:'';
+      actCell=`<input class="week-input${act!=null?' filled':''}" id="inp-${k}-${i}" type="number" min="0" value="${curVal}" placeholder="—" onchange="onInput('${k}',${i},this.value)" oninput="onInput('${k}',${i},this.value)">`;
+    } else {
+      actCell=act!=null?act:'—';
+    }
+
+    return `<tr class="${trCls}">
+      <td>${w}/2026</td>
+      <td>${badge}</td>
+      <td>${orig}</td>
+      <td>${actCell}</td>
+      <td>${s==='future'&&adj!=null?`<b>${adj}</b>`:'<span style="color:#94a3b8">—</span>'}</td>
+      <td>${vsOrig!=null?`<span class="chip ${vsOrig>=0?'cp':'cn'}">${vsOrig>=0?'+':''}${vsOrig}</span>`:'—'}</td>
+      <td id="cumul-${k}-${i}">${cumVal!=null?cumVal:'<span style="color:#94a3b8">—</span>'}</td>
+      <td id="rem-${k}-${i}">${remGap!=null?(remGap>0?`<span class="chip cn">-${remGap}</span>`:'<span class="chip cp">✓</span>'):'—'}</td>
+      <td>${cwr!=null?cwr:'—'}</td><td>${cwg!=null?cwg:'—'}</td>
+    </tr>`;
+  }).join('');
+
+  // ── CW/Rep Scenario Planner data (team) ─────────────────
+  const tCwQTD=getRunQTD(k);
+  const tCwCommit=getCWCommit(k);
+  const tCwRows=TEAM_CW_SCENARIOS.map((cw,idx)=>cwScenarioRow(cw,idx,tCwQTD,tCwCommit,T.hc,T.goal,k)).join('');
+  const tCwSummary=buildCommitSummaryHTML(tCwQTD,tCwCommit,T.hc,T.goal,k);
+  // ── Strategy & pipeline state ────────────────────────────
+  const pipeStatus=getPipelineStatus(k);
+  const tStrategies=getStrategies(k);
+
+  document.getElementById(`pane-${k}`).innerHTML=`
+  <div class="team-hdr" style="justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="team-dot" style="background:${T.color}"></div>
+      <div><h2>${T.name}</h2><div class="meta">Est. HC: ${T.hc} reps &nbsp;·&nbsp; Manager Walk-Back &nbsp;·&nbsp; Q2 2026</div></div>
+    </div>
+    <div class="pipeline-widget">
+      <div class="pw-title">Do you have the current pipeline to reach<br>your committed CW/Rep?</div>
+      <div class="pipeline-opts">
+        <div class="pipeline-opt${pipeStatus==='yes'?' active-yes':''}" id="pipe-${k}-yes" onclick="setPipelineStatus('${k}','yes')">✅ Yes</div>
+        <div class="pipeline-opt${pipeStatus==='no'?' active-no':''}" id="pipe-${k}-no" onclick="setPipelineStatus('${k}','no')">❌ No</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-alert ${alertCls}">
+    <h4>Q2 Gap: <span class="gn" id="kpi-gap-alert-${k}">${gap}</span> signs across 6 remaining weeks</h4>
+    <p>Walk-back adjusted targets for remaining weeks = <b id="ga-adjneed-${k}">${adjNeed}</b> &nbsp;·&nbsp; Req avg: <b>${Math.round(adjNeed/6)}/wk</b> &nbsp;·&nbsp; Req CW/Rep: <b id="kpi-req-cw-${k}">${reqCW}×</b> vs current <b>${curCW}×</b>
+    ${parseFloat(reqCW)>10?' <span class="chip cn">⚠ Critical — headcount review needed</span>':parseFloat(reqCW)>5?' <span class="chip cw">⚠ Very aggressive target</span>':' <span class="chip cp">✓ Achievable with strong execution</span>'}</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-lbl">Q2 Goal</div><div class="kpi-val kv-def">${T.goal}</div><div class="kpi-sub">Full quarter</div></div>
+    <div class="kpi"><div class="kpi-lbl">Signs QTD</div><div class="kpi-val kv-warn" id="kpi-qtd-${k}">${qtd}</div><div class="kpi-sub">Running total</div></div>
+    <div class="kpi"><div class="kpi-lbl">Gap to Goal</div><div class="kpi-val kv-bad" id="kpi-gap-${k}">${gap}</div><div class="kpi-sub">Remaining</div></div>
+    <div class="kpi"><div class="kpi-lbl">Q2 Pacing</div><div class="kpi-val ${pct<50?'kv-bad':pct<75?'kv-warn':'kv-ok'}" id="kpi-pct-${k}">${pct}%</div><div class="kpi-sub">vs full goal</div></div>
+    <div class="kpi"><div class="kpi-lbl">Req CW/Rep</div><div class="kpi-val ${parseFloat(reqCW)>8?'kv-bad':parseFloat(reqCW)>4?'kv-warn':'kv-ok'}">${reqCW}×</div><div class="kpi-sub">vs ${curCW}× now</div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card" style="margin-bottom:0"><div class="card-title">Cumulative Signs — Actual vs. Projected Path</div><div class="card-body"><div class="chart-wrap"><canvas id="chart-${k}"></canvas></div></div></div>
+    <div class="card" style="margin-bottom:0"><div class="card-title">CW/Rep — Actual vs. Goal</div><div class="card-body"><div class="chart-wrap"><canvas id="cwchart-${k}"></canvas></div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span>Week-by-Week Walk-Back — Enter Results Below</span>
+      <span class="chip cb">✏ Input enabled for 5/18 onward</span>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="wt">
+      <thead><tr>
+        <th class="left">Week</th><th class="left">Status</th><th>Orig Goal</th><th>Actual Signs</th><th>Adj Target*</th><th>vs Orig</th><th>Cumulative</th><th>Remaining Gap</th><th>CW/Rep</th><th>CW/Rep Goal</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr>
+        <td colspan="2">Q2 Total</td><td>${T.goal}</td><td id="kpi-qtd-${k}-foot">${qtd}</td><td>${adjNeed} adj</td><td></td><td>${T.goal}</td><td><span class="chip cp">0</span></td><td>${curCW}×</td><td>${(T.cwGoal.filter(v=>v>0).reduce((s,v,_,a)=>s+v/a.length,0)).toFixed(1)}×</td>
+      </tr></tfoot>
+    </table>
+    </div>
+    <div class="edit-hint">* Adj targets distribute the gap proportionally across remaining weeks &nbsp;·&nbsp; Input actual results each week to track progress</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span>CW/Rep Scenario Planner — EOQ Projections &amp; Commitment</span>
+      <span class="chip cg">☑ Check to commit</span>
+    </div>
+    <div style="padding:10px 16px 6px;font-size:11px;color:#64748b;line-height:1.6">
+      Projected end-of-quarter outcomes at each CW/Rep level using <b>${T.hc} active reps × ${CW_REM_WEEKS} remaining full weeks</b> (5/25–6/29).
+      Check the row(s) you are committing to — a shareable commitment summary will appear below for your Director and Head of Sales.
+    </div>
+    <div style="overflow-x:auto">
+    <table class="wt">
+      <thead><tr>
+        <th style="width:60px;text-align:center">Commit</th>
+        <th class="left">CW/Rep Target</th>
+        <th>Signs / Week<br><small style="font-weight:400;font-size:9px">(CW/Rep × ${T.hc} reps)</small></th>
+        <th>6-Wk Total</th>
+        <th>Projected EOQ</th>
+        <th>vs Q2 Goal</th>
+        <th>% of Goal</th>
+        <th>Outcome</th>
+      </tr></thead>
+      <tbody id="cwsc-tbody-${k}">${tCwRows}</tbody>
+      <tfoot><tr>
+        <td colspan="2" style="text-align:left">Base QTD (live)</td>
+        <td colspan="2"></td>
+        <td id="cwsc-foot-qtd-${k}" style="font-weight:800">${tCwQTD.toLocaleString()}</td>
+        <td colspan="3" style="text-align:left;font-size:10px;color:#94a3b8" id="cwsc-foot-gap-${k}">Remaining gap: ${(T.goal-tCwQTD).toLocaleString()} &nbsp;·&nbsp; Goal: ${T.goal.toLocaleString()}</td>
+      </tr></tfoot>
+    </table>
+    </div>
+    <div id="cwsc-commit-panel-${k}" style="margin:10px 16px 16px;padding:14px 18px;border-radius:8px;${tCwSummary.hasAny?'border:2px solid #16a34a;background:#f0fdf4':'border:1px dashed #cbd5e1;background:#f8fafc'}">
+      ${tCwSummary.html}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span>Tactics to Reach Committed CW/Rep</span>
+      <span class="chip cg">☑ Deselect tactics you will NOT use</span>
+    </div>
+    <div style="padding:8px 16px 2px;font-size:11px;color:#64748b;line-height:1.5">
+      All tactics are selected by default. Uncheck any that ${T.name} will <b>not</b> be leveraging to hit the committed CW/Rep target. Checked items will appear in your leadership commitment summary.
+    </div>
+    <div class="strategy-grid">
+      ${STRATEGIES.map(s=>`
+      <div class="strategy-item${tStrategies[s.key]?' sel':''}" onclick="toggleStrategy('${k}','${s.key}')">
+        <input type="checkbox" id="strat-${k}-${s.key}" ${tStrategies[s.key]?'checked':''} onchange="toggleStrategy('${k}','${s.key}')" onclick="event.stopPropagation()">
+        <label for="strat-${k}-${s.key}">${s.label}</label>
+      </div>`).join('')}
+    </div>
+    <div id="strat-summary-${k}" style="margin:4px 16px 16px;padding:12px 16px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0;font-size:11px;color:#475569;line-height:1.6">
+      <b>Committed tactics:</b> ${STRATEGIES.filter(s=>tStrategies[s.key]).map(s=>s.label).join(' &nbsp;·&nbsp; ')||'<span style="color:#94a3b8">None selected</span>'}
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  RENDER ALL TEAMS TAB
+// ══════════════════════════════════════════════════════════
+function renderAllTab(){
+  const orgQTD=getOrgQTD(); const orgGap=ORG_GOAL-orgQTD;
+  const orgPct=Math.round(orgQTD/ORG_GOAL*100);
+  const orgReqCW=(orgGap/(ORG_AHC*6)).toFixed(1);
+  const orgCumul=buildOrgCumul();
+
+  // Team summary table
+  const summaryRows=TEAM_ORDER.map(k=>{
+    const T=TEAMS[k]; const qtd=getRunQTD(k); const gap=T.goal-qtd;
+    const pct=Math.round(qtd/T.goal*100);
+    const adjNeed=T.adjFuture.reduce((s,v)=>s+(v||0),0);
+    const reqWk=Math.round(adjNeed/6);
+    const reqCW=(gap/(T.hc*6)).toFixed(1);
+    const curCW=(T.cwRep.reduce((s,v)=>s+v,0)/T.cwRep.length).toFixed(1);
+    return `<tr>
+      <td style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:${T.color};display:inline-block;flex-shrink:0"></span>${T.name}</td>
+      <td>${T.hc}</td><td>${T.goal}</td>
+      <td id="sum-qtd-${k}">${qtd}</td>
+      <td><span class="chip cn" id="sum-gap-${k}">-${gap}</span></td>
+      <td id="sum-pct-${k}">${pct}%</td>
+      <td>${adjNeed}</td><td>${reqWk}/wk</td>
+      <td><span class="chip ${parseFloat(reqCW)>8?'cn':parseFloat(reqCW)>4?'cw':'cp'}" id="sum-rcw-${k}">${reqCW}×</span></td>
+      <td>${curCW}×</td>
+    </tr>`;
+  }).join('');
+
+  // Org-level manual walk-back table (single input per week, independent of team tabs)
+  let orgCum=ORG_LOCKED_ACTUALS.reduce((s,v)=>s+v,0); // 475 locked through week 6
+  const orgWalkRows=WEEKS.map((w,i)=>{
+    const s=STATUS[i];
+    const act=getOrgWeekActual(i);
+    const locked=i<7;
+    const adj=ORG_ADJ_WEEK_TARGETS[i];
+    if(act!=null) orgCum+=act;
+    const cumDisplay=act!=null?orgCum:null;
+    const vsAdj=(!locked&&act!=null&&adj!=null)?act-adj:null;
+    const remGap=cumDisplay!=null?ORG_GOAL-cumDisplay:null;
+    const origTarget=TEAM_ORDER.reduce((s,k)=>s+TEAMS[k].origGoals[i],0);
+    const vsOrig=locked&&act!=null?act-origTarget:null;
+    const badge=s==='past'?'<span class="badge b-past">PAST</span>':s==='current'?'<span class="badge b-cur">CURRENT</span>':'<span class="badge b-fut">UPCOMING</span>';
+    const trCls=s==='past'?'tr-past':s==='current'?'tr-cur':'tr-fut';
+    let actCell;
+    if(locked){
+      actCell=`<b>${act}</b>`;
+    } else {
+      const val=act!=null?act:'';
+      actCell=`<input class="week-input${act!=null?' filled':''}" id="org-inp-${i}" type="number" min="0" value="${val}" placeholder="enter" onchange="onOrgInput(${i},this.value)" oninput="onOrgInput(${i},this.value)">`;
+    }
+    const initVal=getInitiative(i);
+    const initCell=locked?'<span style="color:#94a3b8;font-size:11px">—</span>':`<input class="init-input${initVal?' filled':''}" id="init-inp-${i}" type="text" value="${(initVal).replace(/"/g,'&quot;')}" placeholder="Add initiative…" onchange="onInitiativeInput(${i},this.value)" oninput="onInitiativeInput(${i},this.value)">`;
+    return `<tr class="${trCls}">
+      <td>${w}/2026</td>
+      <td>${badge}</td>
+      <td>${actCell}</td>
+      <td>${adj!=null&&!locked?adj:'<span style="color:#94a3b8">—</span>'}</td>
+      <td id="orgwt-vs-${i}">${vsAdj!=null?`<span class="chip ${vsAdj>=0?'cp':'cn'}">${vsAdj>=0?'+':''}${vsAdj}</span>`:locked&&vsOrig!=null?`<span class="chip ${vsOrig>=0?'cp':'cn'}">${vsOrig>=0?'+':''}${vsOrig}</span>`:'<span style="color:#94a3b8">—</span>'}</td>
+      <td id="orgwt-cumul-${i}">${cumDisplay!=null?cumDisplay:'<span style="color:#94a3b8">—</span>'}</td>
+      <td id="orgwt-rem-${i}">${remGap!=null?(remGap>0?`<span class="chip cn">-${remGap}</span>`:'<span class="chip cp">✓</span>'):'<span style="color:#94a3b8">—</span>'}</td>
+      <td style="min-width:160px;text-align:left">${initCell}</td>
+    </tr>`;
+  }).join('');
+
+  // ── CW/Rep Scenario Planner data (org) ───────────────────
+  const cwQTD=getOrgQTD();
+  const cwCommit=getCWCommit('org');
+  const cwRows=CW_SCENARIOS.map((cw,idx)=>cwScenarioRow(cw,idx,cwQTD,cwCommit,ORG_AHC,ORG_GOAL,'org')).join('');
+  const cwSummary=buildCommitSummaryHTML(cwQTD,cwCommit,ORG_AHC,ORG_GOAL,'org');
+
+  document.getElementById('pane-all').innerHTML=`
+  <div class="team-hdr">
+    <div class="team-dot" style="background:#1e293b"></div>
+    <div><h2>Inside Sales Overall — All Teams</h2><div class="meta">Gary Biscoe, Regional Lead &nbsp;·&nbsp; Active HC: 23 &nbsp;·&nbsp; Q2 2026</div></div>
+  </div>
+
+  <div class="gap-alert ga-critical">
+    <h4>Q2 Org Gap: <span class="gn" id="kpi-org-gap-h">${orgGap}</span> signs across 6 remaining weeks</h4>
+    <p>Walk-back adjusted targets for remaining 6 weeks = <b>685</b> &nbsp;·&nbsp; Required avg: <b>~114 signs/wk</b> (vs ~61/wk run-rate) &nbsp;·&nbsp; Req CW/Rep org-wide: <b id="kpi-org-reqcw">~${orgReqCW}×</b> vs current <b>~2.65×</b><br>
+    <b>⚠ Jose Valdez's team requires headcount review — 13.9× CW/Rep with 2 reps is not sustainable.</b></p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-lbl">Q2 Org Goal</div><div class="kpi-val kv-def">1,173</div><div class="kpi-sub">Full quarter</div></div>
+    <div class="kpi"><div class="kpi-lbl">Signs QTD</div><div class="kpi-val kv-warn" id="kpi-org-qtd">${orgQTD}</div><div class="kpi-sub">Running total</div></div>
+    <div class="kpi"><div class="kpi-lbl">Combined Gap</div><div class="kpi-val kv-bad" id="kpi-org-gap">${orgGap}</div><div class="kpi-sub">Signs behind</div></div>
+    <div class="kpi"><div class="kpi-lbl">Org Pacing</div><div class="kpi-val kv-bad" id="kpi-org-pct">${orgPct}%</div><div class="kpi-sub">vs full goal</div></div>
+    <div class="kpi"><div class="kpi-lbl">Projected End</div><div class="kpi-val kv-ok">1,173</div><div class="kpi-sub">✓ If adj targets hit</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Org Projected Path to Goal — Combined Walk-Back Targets</div>
+    <div class="card-body"><div class="chart-wrap" style="height:280px"><canvas id="chart-all"></canvas></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>Team-by-Team Walk-Back Summary</span><span class="chip cb">Live — updates as results are entered</span></div>
+    <div style="overflow-x:auto">
+    <table class="wt">
+      <thead><tr><th class="left">Manager</th><th>HC</th><th>Q2 Goal</th><th>QTD</th><th>Gap</th><th>Pacing</th><th>Adj Need</th><th>Req/Wk</th><th>Req CW/Rep</th><th>Curr CW/Rep</th></tr></thead>
+      <tbody>${summaryRows}</tbody>
+      <tfoot><tr><td>ORG TOTAL</td><td>23</td><td>1,173</td><td id="kpi-org-qtd-foot">${orgQTD}</td><td><span class="chip cn" id="kpi-org-gap-foot">-${orgGap}</span></td><td id="kpi-org-pct-foot">${orgPct}%</td><td>685</td><td>~114/wk</td><td><span class="chip cn">5.0×</span></td><td>~2.65×</td></tr></tfoot>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>Week-by-Week Combined Walk-Back Plan</span><span class="chip cb">✏ Enter org total signs each week</span></div>
+    <div style="overflow-x:auto">
+    <table class="wt">
+      <thead><tr>
+        <th class="left">Week</th><th class="left">Status</th>
+        <th>Org Signs<br><small style="font-weight:400;font-size:10px">(Enter Actual)</small></th>
+        <th>Adj Target</th><th>vs Adj Target</th><th>Running QTD</th><th>Remaining Gap</th>
+        <th class="left">Org Initiatives<br><small style="font-weight:400;font-size:9px;text-transform:none;letter-spacing:0">✏ Enter org-wide initiatives</small></th>
+      </tr></thead>
+      <tbody>${orgWalkRows}</tbody>
+      <tfoot><tr>
+        <td colspan="2">Q2 Total</td>
+        <td style="font-weight:800">1,173</td>
+        <td>1,173</td><td></td><td>1,173</td><td><span class="chip cp">✓ 0</span></td><td></td>
+      </tr></tfoot>
+    </table>
+    </div>
+    <div class="edit-hint">Enter the org-wide total signs for each week — KPIs, pacing, and gap calculations update automatically</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span>CW/Rep Scenario Planner — EOQ Projections &amp; Commitment</span>
+      <span class="chip cg">☑ Check to commit</span>
+    </div>
+    <div style="padding:10px 16px 6px;font-size:11px;color:#64748b;line-height:1.6">
+      Projected end-of-quarter outcomes at each CW/Rep level using <b>${ORG_AHC} active reps × ${CW_REM_WEEKS} remaining full weeks</b> (5/25–6/29).
+      Check the row(s) you are committing to — a shareable commitment summary will appear below for your Director and Head of Sales.
+    </div>
+    <div style="overflow-x:auto">
+    <table class="wt">
+      <thead><tr>
+        <th style="width:60px;text-align:center">Commit</th>
+        <th class="left">CW/Rep Target</th>
+        <th>Signs / Week<br><small style="font-weight:400;font-size:9px">(CW/Rep × 23 reps)</small></th>
+        <th>6-Wk Total</th>
+        <th>Projected EOQ</th>
+        <th>vs Q2 Goal</th>
+        <th>% of Goal</th>
+        <th>Outcome</th>
+      </tr></thead>
+      <tbody id="cwsc-tbody-org">${cwRows}</tbody>
+      <tfoot><tr>
+        <td colspan="2" style="text-align:left">Base QTD (live)</td>
+        <td colspan="2"></td>
+        <td id="cwsc-foot-qtd-org" style="font-weight:800">${cwQTD.toLocaleString()}</td>
+        <td colspan="3" style="text-align:left;font-size:10px;color:#94a3b8" id="cwsc-foot-gap-org">Remaining gap: ${(ORG_GOAL-cwQTD).toLocaleString()} &nbsp;·&nbsp; Goal: 1,173</td>
+      </tr></tfoot>
+    </table>
+    </div>
+    <div id="cwsc-commit-panel-org" style="margin:10px 16px 16px;padding:14px 18px;border-radius:8px;${cwSummary.hasAny?'border:2px solid #16a34a;background:#f0fdf4':'border:1px dashed #cbd5e1;background:#f8fafc'}">
+      ${cwSummary.html}
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAB SWITCHING
+// ══════════════════════════════════════════════════════════
+const rendered={};
+function switchTab(key,btn){
+  document.querySelectorAll('.tab-link').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`pane-${key}`).classList.add('active');
+  if(!rendered[key]){
+    if(key==='all'){ renderAllTab(); setTimeout(()=>renderAllChart(),50); }
+    else{ renderTeamTab(key); setTimeout(()=>renderTeamChart(key),50); }
+    rendered[key]=true;
+  } else {
+    // refresh charts when re-activating a tab (canvas may have been hidden)
+    setTimeout(()=>{ if(key==='all') renderAllChart(); else renderTeamChart(key); },50);
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  SHARE / EXPORT
+// ══════════════════════════════════════════════════════════
+function openShare(){
+  const data=btoa(JSON.stringify(RESULTS));
+  document.getElementById('share-output').value=data;
+  document.getElementById('share-modal').classList.add('open');
+}
+function copyShareData(){
+  const ta=document.getElementById('share-output');
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    const btn=event.target; btn.textContent='✓ Copied!';
+    setTimeout(()=>btn.textContent='Copy to Clipboard',2000);
+  }).catch(()=>{ ta.select(); document.execCommand('copy'); });
+}
+function openImport(){
+  document.getElementById('import-input').value='';
+  document.getElementById('import-modal').classList.add('open');
+}
+function doImport(){
+  const raw=document.getElementById('import-input').value.trim();
+  try{
+    const data=JSON.parse(atob(raw));
+    RESULTS=data; saveStorage();
+    // Clear rendered cache and re-render active tab
+    Object.keys(rendered).forEach(k=>delete rendered[k]);
+    const activeTab=document.querySelector('.tab-link.active');
+    const key=activeTab?activeTab.getAttribute('onclick').match(/'(\w+)'/)[1]:'all';
+    closeModal('import-modal');
+    // re-render
+    if(key==='all'){ renderAllTab(); setTimeout(()=>renderAllChart(),50); rendered['all']=true; }
+    else{ renderTeamTab(key); setTimeout(()=>renderTeamChart(key),50); rendered[key]=true; }
+    alert('✓ Data imported successfully! All results updated.');
+  } catch(e){
+    alert('❌ Invalid data string. Please paste the exact string shared by your team lead.');
+  }
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+function downloadUpdatedPage(){
+  const src=document.documentElement.outerHTML;
+  const dataStr=JSON.stringify(RESULTS).replace(/</g,'\\x3c');
+  const updated=src.replace(
+    'var PRELOADED_DATA = null;',
+    `var PRELOADED_DATA = ${dataStr};`
+  );
+  const blob=new Blob([updated],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url;
+  a.download='AE_Q2_Walkback_Plan_'+new Date().toISOString().slice(0,10)+'.html';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+renderAllTab();
+setTimeout(()=>renderAllChart(),100);
+rendered['all']=true;
+</script>
+</body>
+</html>
