@@ -143,6 +143,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .init-input.filled{background:#fef9c3;border:1px solid #fbbf24;color:#78350f}
 
 footer{text-align:center;padding:14px;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:4px}
+
+/* ── LEADER ACCESS MODE ── */
+.leader-banner{display:none;align-items:center;justify-content:space-between;gap:10px;padding:10px 32px;font-size:12px;flex-wrap:wrap}
+.leader-banner.show{display:flex}
+.lb-left{display:flex;align-items:center;gap:10px}
+.lb-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:white;flex-shrink:0}
+.lb-name{font-weight:700;font-size:13px}
+.lb-sub{font-size:11px;opacity:.75;margin-top:1px}
+.lb-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3)}
+.tab-link.locked{opacity:.35;cursor:not-allowed;pointer-events:none}
+.tab-link.locked:hover{color:#64748b;border-bottom-color:transparent}
+.leader-share-btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.2);color:white;transition:all .15s}
+.leader-share-btn:hover{background:rgba(255,255,255,.35)}
+.links-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center}
+.links-modal-overlay.open{display:flex}
+.links-modal{background:white;border-radius:14px;padding:28px;width:90%;max-width:560px;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+.links-modal h3{font-size:16px;font-weight:800;margin-bottom:6px}
+.links-modal .lm-sub{font-size:12px;color:#64748b;margin-bottom:20px;line-height:1.5}
+.leader-link-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px}
+.ll-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.ll-name{font-size:13px;font-weight:700;flex:1;min-width:0}
+.ll-url{font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+.ll-copy{padding:5px 12px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;border:none;background:#3b82f6;color:white;flex-shrink:0;transition:all .15s}
+.ll-copy:hover{background:#2563eb}
+.ll-copy.copied{background:#059669}
+
+/* ── LEADER COMMIT SUMMARY CARD ── */
+.lc-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f1f5f9}
+.lc-row:last-child{border-bottom:none}
+.lc-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.lc-name{font-size:12px;font-weight:700;flex:1}
+.lc-commit{font-size:14px;font-weight:800}
+.lc-pending{font-size:11px;color:#94a3b8;font-style:italic}
+.lc-tactics{font-size:10px;color:#64748b;margin-top:2px}
+.org-avg-banner{margin:0 16px 16px;padding:14px 20px;border-radius:8px;background:#eff6ff;border:2px solid #3b82f6;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.org-avg-banner.all-in{background:#f0fdf4;border-color:#16a34a}
+.oab-left{font-size:13px;font-weight:700;color:#1e40af}
+.oab-cw{font-size:28px;font-weight:800;color:#1d4ed8;line-height:1}
+.oab-right{font-size:11px;color:#64748b;line-height:1.6}
 </style>
 </head>
 <body>
@@ -156,8 +195,33 @@ footer{text-align:center;padding:14px;font-size:11px;color:#94a3b8;border-top:1p
   <div class="hdr-right">
     <button class="hdr-btn btn-import" onclick="openImport()">📥 Import Data</button>
     <button class="hdr-btn btn-share" onclick="openShare()">📤 Share Data</button>
+    <button class="hdr-btn" style="background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.25)" onclick="openLinksModal()">🔗 Leader Links</button>
     <button class="hdr-btn btn-export" onclick="downloadUpdatedPage()">⬇ Download Updated Page</button>
     <span class="save-dot" id="save-dot"></span>
+  </div>
+</div>
+
+<!-- ══════════ LEADER ACCESS BANNER ══════════ -->
+<div class="leader-banner app-header" id="leader-banner" style="padding-top:8px;padding-bottom:8px;border-top:1px solid rgba(255,255,255,.1)">
+  <div class="lb-left">
+    <div class="lb-avatar" id="lb-avatar"></div>
+    <div><div class="lb-name" id="lb-name"></div><div class="lb-sub">Your personal walk-back view — all other tabs are locked</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span class="lb-badge" id="lb-badge"></span>
+    <button class="leader-share-btn" onclick="openShare()">📤 Share My Data</button>
+  </div>
+</div>
+
+<!-- ══════════ LEADER LINKS MODAL ══════════ -->
+<div class="links-modal-overlay" id="links-modal">
+  <div class="links-modal">
+    <h3>🔗 Leader Personal Links</h3>
+    <div class="lm-sub">Send each manager their unique link. When they open it the page auto-opens their tab and locks all others — only they can edit their section.</div>
+    <div id="links-modal-body"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button onclick="closeModal('links-modal')" style="padding:8px 18px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:#f1f5f9;color:#475569">Close</button>
+    </div>
   </div>
 </div>
 
@@ -453,18 +517,42 @@ function refreshAllCharts(){
   if(charts['all']) renderAllChart();
 }
 
+// Build committed CW path from branch point forward
+function buildCommitPath(qtdAtBranch, branchIdx, cwCommitted, hc){
+  const spw=Math.round(cwCommitted*hc);
+  return WEEKS.map((_,i)=>{
+    if(i<branchIdx) return null;
+    return qtdAtBranch + spw*(i-branchIdx+1);
+  });
+}
+// Get highest checked CW scenario for key ('org' or team key)
+function getHighestCommit(key){
+  const scens=key==='org'?CW_SCENARIOS:TEAM_CW_SCENARIOS;
+  const commit=getCWCommit(key);
+  const checked=scens.filter((_,i)=>commit[i]);
+  return checked.length>0?Math.max(...checked):null;
+}
+
 function renderTeamChart(k){
   const T=TEAMS[k];
   const ctx=document.getElementById(`chart-${k}`); if(!ctx) return;
   if(charts[`main-${k}`]){charts[`main-${k}`].destroy(); delete charts[`main-${k}`];}
   const cumul=buildCumul(k); const adj=buildAdjPath(k);
   let cumGoal=0; const goalLine=WEEKS.map((_,i)=>{cumGoal+=T.origGoals[i];return cumGoal;});
-  charts[`main-${k}`]=new Chart(ctx,{type:'line',data:{labels:WEEKS,datasets:[
+
+  const datasets=[
     {label:'Actual',data:cumul,borderColor:T.color,backgroundColor:T.color+'18',fill:true,borderWidth:2.5,pointRadius:4,tension:.3},
-    {label:'Adj Path / Proj',data:adj,borderColor:'#3b82f6',borderDash:[6,3],borderWidth:2,pointRadius:4,pointBackgroundColor:'#3b82f6',fill:false,tension:.3},
+    {label:'Adj Walk-Back Path',data:adj,borderColor:'#3b82f6',borderDash:[6,3],borderWidth:2,pointRadius:4,pointBackgroundColor:'#3b82f6',fill:false,tension:.3},
     {label:'Orig Goal',data:goalLine,borderColor:'#94a3b8',borderDash:[3,2],borderWidth:1.5,pointRadius:2,fill:false,tension:.3}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10}}},
-    scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{grid:{color:'#f1f5f9'},ticks:{font:{size:9}},min:0}}}});
+  ];
+  const committedCW=getHighestCommit(k);
+  if(committedCW!=null){
+    const branchIdx=EDITABLE[0];
+    const commitPath=buildCommitPath(getRunQTD(k),branchIdx,committedCW,T.hc);
+    datasets.push({label:`Committed Path (${committedCW.toFixed(1)}× CW/Rep)`,data:commitPath,borderColor:'#16a34a',borderDash:[8,3],borderWidth:2.5,pointRadius:WEEKS.map((_,i)=>i===branchIdx?5:3),pointBackgroundColor:'#16a34a',pointBorderColor:'white',pointBorderWidth:1.5,fill:false,tension:.2});
+  }
+
+  charts[`main-${k}`]=new Chart(ctx,{type:'line',data:{labels:WEEKS,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():''}`}}},scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{grid:{color:'#f1f5f9'},ticks:{font:{size:9}},min:0}}}});
 
   // CW/Rep bar chart
   const ctx2=document.getElementById(`cwchart-${k}`); if(!ctx2) return;
@@ -473,21 +561,30 @@ function renderTeamChart(k){
   charts[`cw-${k}`]=new Chart(ctx2,{type:'bar',data:{labels:WEEKS,datasets:[
     {label:'CW/Rep',data:cwA,backgroundColor:WEEKS.map((_,i)=>{const a=T.cwRep[i];const g=T.cwGoal[i];return a!=null?(a>=g?'#22c55e':'#ef4444'):'transparent';}),borderRadius:3,order:1},
     {label:'Goal',data:T.cwGoal,type:'line',borderColor:'#94a3b8',borderDash:[3,2],borderWidth:1.5,pointRadius:2,fill:false,order:0}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10}}},
-    scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{grid:{color:'#f1f5f9'},ticks:{font:{size:9}},min:0}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{grid:{color:'#f1f5f9'},ticks:{font:{size:9}},min:0}}}});
 }
 
 function renderAllChart(){
   const ctx=document.getElementById('chart-all'); if(!ctx) return;
   if(charts['all']){charts['all'].destroy(); delete charts['all'];}
   const cumul=buildOrgCumul(); const adj=buildOrgAdjPath(); const origGoal=buildOrgOrigGoal();
-  charts['all']=new Chart(ctx,{type:'line',data:{labels:WEEKS,datasets:[
+
+  const datasets=[
     {label:'QTD Actuals',data:cumul,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:true,borderWidth:2.5,pointRadius:4,tension:.3},
-    {label:'Projected Path',data:adj,borderColor:'#3b82f6',borderDash:[6,3],borderWidth:2,pointRadius:4,pointBackgroundColor:'#3b82f6',fill:false,tension:.3},
+    {label:'Adj Walk-Back Path',data:adj,borderColor:'#3b82f6',borderDash:[6,3],borderWidth:2,pointRadius:4,pointBackgroundColor:'#3b82f6',fill:false,tension:.3},
     {label:'Baseline Pace',data:origGoal,borderColor:'#f59e0b',borderDash:[4,3],borderWidth:1.5,pointRadius:2,fill:false,tension:.3},
     {label:'Quarterly Goal (1,173)',data:WEEKS.map(()=>ORG_GOAL),borderColor:'#059669',borderDash:[2,2],borderWidth:1.5,pointRadius:0,fill:false}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10,boxWidth:12}}},
-    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f1f5f9'},ticks:{font:{size:10}},min:0,max:1400}}}});
+  ];
+  // Use org manual commit first; fall back to leader avg if all have committed
+  let orgCW=getHighestCommit('org');
+  if(orgCW==null){ const lc=getOrgAvgCommittedCW(); if(lc.avgRoundedUp!=null) orgCW=lc.avgRoundedUp; }
+  if(orgCW!=null){
+    const branchIdx=EDITABLE[0];
+    const commitPath=buildCommitPath(getOrgQTD(),branchIdx,orgCW,ORG_AHC);
+    datasets.push({label:`Committed Path (${orgCW.toFixed(1)}× CW/Rep · ${Math.round(orgCW*ORG_AHC)} signs/wk)`,data:commitPath,borderColor:'#16a34a',borderDash:[8,3],borderWidth:3,pointRadius:WEEKS.map((_,i)=>i===branchIdx?6:3),pointBackgroundColor:'#16a34a',pointBorderColor:'white',pointBorderWidth:2,fill:false,tension:.2});
+  }
+
+  charts['all']=new Chart(ctx,{type:'line',data:{labels:WEEKS,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10,boxWidth:12}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():''}`}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f1f5f9'},ticks:{font:{size:10}},min:0,max:1400}}}});
 }
 
 // ══════════════════════════════════════════════════════════
@@ -629,6 +726,8 @@ function toggleCWCommit(key,idx){
   if(!RESULTS.cwcommit||Array.isArray(RESULTS.cwcommit)) RESULTS.cwcommit={};
   RESULTS.cwcommit[key]=arr; saveStorage();
   refreshCWScenarioTable(key);
+  if(key==='org'){ if(charts['all']) renderAllChart(); }
+  else{ if(charts[`main-${key}`]) renderTeamChart(key); }
 }
 
 // hc = headcount, goal = team/org goal, key = namespace for element IDs
@@ -925,10 +1024,43 @@ function renderAllTab(){
   }).join('');
 
   // ── CW/Rep Scenario Planner data (org) ───────────────────
+  applyOrgAutoCommit();
   const cwQTD=getOrgQTD();
   const cwCommit=getCWCommit('org');
   const cwRows=CW_SCENARIOS.map((cw,idx)=>cwScenarioRow(cw,idx,cwQTD,cwCommit,ORG_AHC,ORG_GOAL,'org')).join('');
   const cwSummary=buildCommitSummaryHTML(cwQTD,cwCommit,ORG_AHC,ORG_GOAL,'org');
+
+  // ── Leader commit summary rows ────────────────────────────
+  const lcData=getOrgAvgCommittedCW();
+  const leaderCommitRows=TEAM_ORDER.map(k=>{
+    const T=TEAMS[k]; const cw=lcData.vals[TEAM_ORDER.indexOf(k)];
+    const strats=getStrategies(k);
+    const activeTactics=STRATEGIES.filter(s=>strats[s.key]).map(s=>s.label);
+    const pipeStatus=getPipelineStatus(k);
+    const pipeIcon=pipeStatus==='yes'?'✅':pipeStatus==='no'?'❌':'⬜';
+    return `<div class="lc-row">
+      <div class="lc-dot" style="background:${T.color}"></div>
+      <div style="flex:1">
+        <div class="lc-name">${T.name} <span style="font-weight:400;color:#64748b;font-size:11px">${T.hc} reps</span></div>
+        ${activeTactics.length?`<div class="lc-tactics">Tactics: ${activeTactics.slice(0,4).join(' · ')}${activeTactics.length>4?' +more':''}</div>`:''}
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:#64748b;margin-bottom:2px">Pipeline ${pipeIcon}</div>
+        ${cw!=null?`<div class="lc-commit" style="color:${T.color}">${cw.toFixed(1)}×</div><div style="font-size:10px;color:#64748b">committed</div>`:'<div class="lc-pending">awaiting commit</div>'}
+      </div>
+    </div>`;
+  }).join('');
+
+  const orgAvgHTML=lcData.anyIn?`
+    <div class="org-avg-banner${lcData.allIn?' all-in':''}">
+      <div>
+        <div class="oab-left">${lcData.allIn?'✅ All leaders committed — org avg applied':'⏳ Partial commits — avg so far'}</div>
+        <div class="oab-cw">${lcData.avgRoundedUp!=null?lcData.avgRoundedUp.toFixed(1)+'×':'—'}</div>
+        <div style="font-size:10px;color:#64748b;margin-top:3px">avg CW/Rep (rounded up) · ${lcData.count} of ${TEAM_ORDER.length} teams</div>
+      </div>
+      <div class="oab-right">${lcData.allIn?'Org planner row auto-selected below.<br>Override by checking a different row.':`${TEAM_ORDER.length-lcData.count} leader(s) still need to commit.`}</div>
+    </div>`
+    :'<div style="padding:12px 16px;font-size:11px;color:#94a3b8;font-style:italic">No leader commits yet — each manager checks their committed CW/Rep on their personal tab.</div>';
 
   document.getElementById('pane-all').innerHTML=`
   <div class="team-hdr">
@@ -989,12 +1121,21 @@ function renderAllTab(){
 
   <div class="card">
     <div class="card-title">
-      <span>CW/Rep Scenario Planner — EOQ Projections &amp; Commitment</span>
-      <span class="chip cg">☑ Check to commit</span>
+      <span>Leader CW/Rep Commitments — Individual Team Commits</span>
+      <span class="chip cg">${lcData.allIn?'✅ All 5 committed':lcData.anyIn?`⏳ ${lcData.count}/5 committed`:'⬜ Awaiting commits'}</span>
+    </div>
+    <div style="padding:6px 0 0">${leaderCommitRows}</div>
+    ${orgAvgHTML}
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span>Org CW/Rep Scenario Planner — EOQ Projections &amp; Org Commitment</span>
+      <span class="chip cg">☑ ${lcData.allIn?'Auto-selected from leader avg — override any row':'Check to commit org-wide'}</span>
     </div>
     <div style="padding:10px 16px 6px;font-size:11px;color:#64748b;line-height:1.6">
       Projected end-of-quarter outcomes at each CW/Rep level using <b>${ORG_AHC} active reps × ${CW_REM_WEEKS} remaining full weeks</b> (5/25–6/29).
-      Check the row(s) you are committing to — a shareable commitment summary will appear below for your Director and Head of Sales.
+      ${lcData.allIn?`<b style="color:#065f46">Auto-populated from leader avg = ${lcData.avgRoundedUp}× (rounded up). Check any row to override.</b>`:'When all 5 leaders commit, the nearest row auto-selects based on their avg CW/Rep.'}
     </div>
     <div style="overflow-x:auto">
     <table class="wt">
@@ -1024,6 +1165,32 @@ function renderAllTab(){
 }
 
 // ══════════════════════════════════════════════════════════
+//  LEADER COMMITTED CW/REP HELPERS
+// ══════════════════════════════════════════════════════════
+function getLeaderCommittedCW(key){
+  const commit=getCWCommit(key);
+  const checked=TEAM_CW_SCENARIOS.filter((_,i)=>commit[i]);
+  return checked.length>0?Math.max(...checked):null;
+}
+function getOrgAvgCommittedCW(){
+  const vals=TEAM_ORDER.map(k=>getLeaderCommittedCW(k));
+  const committed=vals.filter(v=>v!=null);
+  const avg=committed.length>0?committed.reduce((s,v)=>s+v,0)/committed.length:null;
+  return{vals,allIn:vals.every(v=>v!=null),anyIn:vals.some(v=>v!=null),avg,avgRoundedUp:avg!=null?Math.ceil(avg*10)/10:null,count:committed.length};
+}
+function applyOrgAutoCommit(){
+  const{allIn,avgRoundedUp}=getOrgAvgCommittedCW();
+  if(!allIn||avgRoundedUp==null) return;
+  const existing=getCWCommit('org');
+  if(existing.some(v=>v)) return; // don't override manual org commit
+  let closest=0,minDiff=Infinity;
+  CW_SCENARIOS.forEach((cw,i)=>{const d=Math.abs(cw-avgRoundedUp);if(d<minDiff){minDiff=d;closest=i;}});
+  if(!RESULTS.cwcommit||Array.isArray(RESULTS.cwcommit)) RESULTS.cwcommit={};
+  RESULTS.cwcommit['org']=CW_SCENARIOS.map((_,i)=>i===closest);
+  saveStorage();
+}
+
+// ══════════════════════════════════════════════════════════
 //  TAB SWITCHING
 // ══════════════════════════════════════════════════════════
 const rendered={};
@@ -1032,14 +1199,10 @@ function switchTab(key,btn){
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById(`pane-${key}`).classList.add('active');
-  if(!rendered[key]){
-    if(key==='all'){ renderAllTab(); setTimeout(()=>renderAllChart(),50); }
-    else{ renderTeamTab(key); setTimeout(()=>renderTeamChart(key),50); }
-    rendered[key]=true;
-  } else {
-    // refresh charts when re-activating a tab (canvas may have been hidden)
-    setTimeout(()=>{ if(key==='all') renderAllChart(); else renderTeamChart(key); },50);
-  }
+  // org tab always re-renders to pick up imported leader commits
+  if(key==='all'){ renderAllTab(); setTimeout(()=>renderAllChart(),50); rendered['all']=true; }
+  else if(!rendered[key]){ renderTeamTab(key); setTimeout(()=>renderTeamChart(key),50); rendered[key]=true; }
+  else{ setTimeout(()=>renderTeamChart(key),50); }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1065,29 +1228,22 @@ function doImport(){
   const raw=document.getElementById('import-input').value.trim();
   try{
     const data=JSON.parse(atob(raw));
-    RESULTS=data; saveStorage();
-    // Clear rendered cache and re-render active tab
+    RESULTS=ensureOrgKey(data); saveStorage();
     Object.keys(rendered).forEach(k=>delete rendered[k]);
-    const activeTab=document.querySelector('.tab-link.active');
-    const key=activeTab?activeTab.getAttribute('onclick').match(/'(\w+)'/)[1]:'all';
     closeModal('import-modal');
-    // re-render
-    if(key==='all'){ renderAllTab(); setTimeout(()=>renderAllChart(),50); rendered['all']=true; }
-    else{ renderTeamTab(key); setTimeout(()=>renderTeamChart(key),50); rendered[key]=true; }
-    alert('✓ Data imported successfully! All results updated.');
-  } catch(e){
-    alert('❌ Invalid data string. Please paste the exact string shared by your team lead.');
-  }
+    renderAllTab(); setTimeout(()=>renderAllChart(),50); rendered['all']=true;
+    const activeTab=document.querySelector('.tab-link.active');
+    const key=activeTab?activeTab.getAttribute('onclick').match(/'(\w+)'/)?.[1]:'all';
+    if(key&&key!=='all'){ renderTeamTab(key); setTimeout(()=>renderTeamChart(key),50); rendered[key]=true; }
+    alert('✓ Data imported! Leader commits and org projections updated.');
+  } catch(e){ alert('❌ Invalid data string. Please paste the exact string shared by your team lead.'); }
 }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
 function downloadUpdatedPage(){
   const src=document.documentElement.outerHTML;
   const dataStr=JSON.stringify(RESULTS).replace(/</g,'\\x3c');
-  const updated=src.replace(
-    'var PRELOADED_DATA = null;',
-    `var PRELOADED_DATA = ${dataStr};`
-  );
+  const updated=src.replace('var PRELOADED_DATA = null;',`var PRELOADED_DATA = ${dataStr};`);
   const blob=new Blob([updated],{type:'text/html'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url;
@@ -1096,11 +1252,78 @@ function downloadUpdatedPage(){
 }
 
 // ══════════════════════════════════════════════════════════
+//  LEADER ACCESS MODE
+// ══════════════════════════════════════════════════════════
+const LEADER_MAP={
+  anthony:{name:'Anthony Zasa',  color:'#7c3aed',emoji:'AZ'},
+  derek:  {name:'Derek Beckett', color:'#ea580c',emoji:'DB'},
+  heath:  {name:'Heath Hockett', color:'#2563eb',emoji:'HH'},
+  jose:   {name:'Jose Valdez',   color:'#059669',emoji:'JV'},
+  michael:{name:'Michael Hayes', color:'#0891b2',emoji:'MH'},
+};
+let ACTIVE_LEADER=null;
+
+function initLeaderMode(){
+  const params=new URLSearchParams(window.location.search);
+  const leaderKey=params.get('leader');
+  if(!leaderKey||!LEADER_MAP[leaderKey]) return;
+  ACTIVE_LEADER=leaderKey;
+  const info=LEADER_MAP[leaderKey];
+  const banner=document.getElementById('leader-banner');
+  if(banner){
+    banner.classList.add('show'); banner.style.background=info.color;
+    const av=document.getElementById('lb-avatar');
+    if(av){av.textContent=info.emoji;av.style.background='rgba(255,255,255,.25)';}
+    const nm=document.getElementById('lb-name');
+    if(nm) nm.textContent=info.name+' — Your Walk-Back Dashboard';
+    const bd=document.getElementById('lb-badge');
+    if(bd) bd.textContent='🔒 Personal View';
+  }
+  document.querySelectorAll('.tab-link').forEach(btn=>{
+    const m=btn.getAttribute('onclick')||''; const match=m.match(/'(\w+)'/);
+    const tabKey=match?match[1]:null;
+    if(tabKey&&tabKey!==leaderKey&&tabKey!=='all') btn.classList.add('locked');
+  });
+  const leaderBtn=document.querySelector(`.tab-link[onclick*="'${leaderKey}'"]`);
+  if(leaderBtn) setTimeout(()=>leaderBtn.click(),50);
+  document.querySelectorAll('.hdr-btn.btn-import').forEach(b=>b.style.display='none');
+  document.querySelectorAll('.hdr-btn').forEach(b=>{if(b.textContent.includes('Leader Links'))b.style.display='none';});
+}
+
+function openLinksModal(){
+  const base=window.location.origin+window.location.pathname;
+  const body=document.getElementById('links-modal-body');
+  if(body){
+    body.innerHTML=Object.entries(LEADER_MAP).map(([key,info])=>{
+      const url=`${base}?leader=${key}`;
+      return `<div class="leader-link-row">
+        <div class="ll-dot" style="background:${info.color}"></div>
+        <div style="flex:1;min-width:0"><div class="ll-name">${info.name}</div><div class="ll-url">${url}</div></div>
+        <button class="ll-copy" id="llcopy-${key}" onclick="copyLeaderLink('${key}','${url}')">Copy</button>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('links-modal').classList.add('open');
+}
+
+function copyLeaderLink(key,url){
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=document.getElementById(`llcopy-${key}`);
+    if(btn){btn.textContent='✓ Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);}
+  }).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    const btn=document.getElementById(`llcopy-${key}`);
+    if(btn){btn.textContent='✓ Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);}
+  });
+}
+
+// ══════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════
 renderAllTab();
 setTimeout(()=>renderAllChart(),100);
 rendered['all']=true;
+initLeaderMode();
 </script>
 </body>
 </html>
