@@ -144,6 +144,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 footer{text-align:center;padding:14px;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:4px}
 
+/* ── DELTA BADGE (±signs vs goal) ── */
+.delta-pos{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:800;background:#dcfce7;color:#166534}
+.delta-neg{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:800;background:#fee2e2;color:#991b1b}
+.delta-zero{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:800;background:#f1f5f9;color:#475569}
+
+/* ── HOW WE WILL GET THERE ── */
+.hwgt-card{background:white;border-radius:10px;border:2px solid #3b82f6;overflow:hidden;margin-bottom:18px}
+.hwgt-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#1e40af;padding:12px 16px 10px;border-bottom:1px solid #dbeafe;display:flex;justify-content:space-between;align-items:center;background:#eff6ff}
+.hwgt-body{padding:14px 16px 16px}
+.hwgt-bullet{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.hwgt-bullet:last-child{margin-bottom:0}
+.hwgt-num{width:24px;height:24px;border-radius:50%;background:#3b82f6;color:white;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.hwgt-input{flex:1;padding:7px 10px;border:1px dashed #93c5fd;border-radius:6px;font-size:13px;font-weight:500;background:#f8fafc;color:#1e293b;transition:all .15s;line-height:1.4;resize:none;min-height:36px;font-family:inherit}
+.hwgt-input:focus{outline:none;border:1.5px solid #3b82f6;background:white;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.hwgt-input.filled{background:#eff6ff;border:1.5px solid #3b82f6;color:#1e293b}
+.hwgt-author{font-size:10px;color:#94a3b8;margin-top:3px;text-align:right}
+.shared-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+
 /* ── LEADER ACCESS MODE ── */
 .leader-banner{display:none;align-items:center;justify-content:space-between;gap:10px;padding:10px 32px;font-size:12px;flex-wrap:wrap}
 .leader-banner.show{display:flex}
@@ -299,6 +317,31 @@ footer{text-align:center;padding:14px;font-size:11px;color:#94a3b8;border-top:1p
 var PRELOADED_DATA = null;
 
 // ══════════════════════════════════════════════════════════
+//  SHARED STORAGE — all users share the same localStorage key
+//  so any action on any leader page is visible to everyone
+//  on the same browser (and via Share Data string for cross-device)
+// ══════════════════════════════════════════════════════════
+const STORAGE_KEY = 'ae_q2_wb_2026';
+function loadStorage(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)); }catch(e){return null;} }
+function saveStorage(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(RESULTS));
+    // Broadcast to other tabs/windows on same browser via storage event
+    localStorage.setItem(STORAGE_KEY+'_ping', Date.now().toString());
+  }catch(e){}
+  flashSave();
+}
+// Listen for changes from other tabs and re-render
+window.addEventListener('storage', e=>{
+  if(e.key===STORAGE_KEY){
+    try{
+      const fresh=JSON.parse(e.newValue);
+      if(fresh){ RESULTS=ensureOrgKey(fresh); Object.keys(rendered).forEach(k=>delete rendered[k]); renderAllTab(); setTimeout(()=>renderAllChart(),50); rendered['all']=true; }
+    }catch(_){}
+  }
+});
+
+// ══════════════════════════════════════════════════════════
 //  CONSTANTS
 // ══════════════════════════════════════════════════════════
 const WEEKS   = ['4/1','4/6','4/13','4/20','4/27','5/4','5/11','5/18','5/25','6/1','6/8','6/15','6/22','6/29'];
@@ -374,9 +417,6 @@ function ensureOrgKey(r){
   if(!r.org){ r.org={}; EDITABLE.forEach(i=>{ r.org[i]=i===7?ORG_WEEK7_DEFAULT:null; }); }
   return r;
 }
-function loadStorage() { try{ return JSON.parse(localStorage.getItem('ae_q2_wb_2026')); }catch(e){return null;} }
-function saveStorage() { try{ localStorage.setItem('ae_q2_wb_2026', JSON.stringify(RESULTS)); }catch(e){} flashSave(); }
-
 let RESULTS = ensureOrgKey(PRELOADED_DATA || loadStorage() || defaultResults());
 
 function flashSave(){
@@ -615,7 +655,14 @@ function refreshOrgWalkbackTable(){
     if(cEl) cEl.textContent=hasVal?cum:'—';
     const adj=ORG_ADJ_WEEK_TARGETS[i]||0;
     const vsEl=document.getElementById(`orgwt-vs-${i}`);
-    if(vsEl&&hasVal){ const d=v-adj; vsEl.innerHTML=`<span class="chip ${d>=0?'cp':'cn'}">${d>=0?'+':''}${d}</span>`; }
+    if(vsEl&&hasVal){
+      const d=v-adj;
+      let db;
+      if(d>0) db=`<span class="delta-pos">▲ +${d}</span>`;
+      else if(d<0) db=`<span class="delta-neg">▼ ${d}</span>`;
+      else db=`<span class="delta-zero">= 0</span>`;
+      vsEl.innerHTML=db;
+    }
     const gEl=document.getElementById(`orgwt-rem-${i}`);
     if(gEl) gEl.innerHTML=hasVal?(ORG_GOAL-cum>0?`<span class="chip cn">-${ORG_GOAL-cum}</span>`:'<span class="chip cp">✓</span>'):'<span style="color:#94a3b8">—</span>';
   }
@@ -699,6 +746,57 @@ function onInitiativeInput(i,val){
   RESULTS.initiatives[i]=val||''; saveStorage();
   const inp=document.getElementById(`init-inp-${i}`);
   if(inp) inp.classList.toggle('filled',!!(val&&val.trim()));
+}
+
+// ══════════════════════════════════════════════════════════
+//  HOW WE WILL GET THERE — shared 5-bullet plan per page
+// ══════════════════════════════════════════════════════════
+function getHWGT(pageKey){
+  if(!RESULTS.hwgt) RESULTS.hwgt={};
+  if(!RESULTS.hwgt[pageKey]) RESULTS.hwgt[pageKey]={bullets:['','','','',''],authors:['','','','','']};
+  return RESULTS.hwgt[pageKey];
+}
+function onHWGTInput(pageKey, idx, val){
+  const d=getHWGT(pageKey);
+  d.bullets[idx]=val||'';
+  // Tag with author name if in leader mode
+  const authorName = ACTIVE_LEADER && LEADER_MAP[ACTIVE_LEADER] ? LEADER_MAP[ACTIVE_LEADER].name : 'Gary Biscoe';
+  if(val && val.trim()) d.authors[idx]=authorName+' · '+new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  else d.authors[idx]='';
+  RESULTS.hwgt[pageKey]=d;
+  saveStorage();
+  const inp=document.getElementById(`hwgt-${pageKey}-${idx}`);
+  if(inp) inp.classList.toggle('filled',!!(val&&val.trim()));
+  const auth=document.getElementById(`hwgt-auth-${pageKey}-${idx}`);
+  if(auth) auth.textContent=d.authors[idx];
+}
+function buildHWGTCard(pageKey){
+  const d=getHWGT(pageKey);
+  const bullets=d.bullets||['','','','',''];
+  const authors=d.authors||['','','','',''];
+  const rows=[1,2,3,4,5].map((n,i)=>`
+    <div class="hwgt-bullet">
+      <div class="hwgt-num">${n}</div>
+      <div style="flex:1">
+        <textarea class="hwgt-input${bullets[i]?' filled':''}" id="hwgt-${pageKey}-${i}" rows="2"
+          placeholder="Add your plan for how we will get there…"
+          oninput="onHWGTInput('${pageKey}',${i},this.value)"
+          onchange="onHWGTInput('${pageKey}',${i},this.value)"
+        >${(bullets[i]||'').replace(/</g,'&lt;')}</textarea>
+        <div class="hwgt-author" id="hwgt-auth-${pageKey}-${i}">${authors[i]||''}</div>
+      </div>
+    </div>`).join('');
+  return `
+  <div class="hwgt-card">
+    <div class="hwgt-title">
+      <span>📌 How We Will Get There</span>
+      <span class="shared-badge">🔄 Shared — visible to all leaders &amp; Gary</span>
+    </div>
+    <div class="hwgt-body">
+      <div style="font-size:11px;color:#64748b;margin-bottom:12px;line-height:1.5">All leaders and Gary can type directly in any bullet below. Changes are saved instantly and visible to everyone via <b>Share Data / Import Data</b>. Each entry is timestamped with the author's name.</div>
+      ${rows}
+    </div>
+  </div>`;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -813,6 +911,7 @@ function renderTeamTab(k){
     const adj=T.adjFuture[i];
     const cwr=T.cwRep[i]; const cwg=T.cwGoal[i];
     const vsOrig=act!=null?act-orig:null;
+    const vsAdj=(adj!=null&&act!=null)?act-adj:null;  // ± vs Adj target
     const trCls=s==='past'?'tr-past':s==='current'?'tr-cur':'tr-fut';
     const badge=s==='past'?'<span class="badge b-past">PAST</span>':s==='current'?'<span class="badge b-cur">CURRENT</span>':'<span class="badge b-fut">UPCOMING</span>';
     const cumVal=cumul[i];
@@ -827,13 +926,25 @@ function renderTeamTab(k){
       actCell=act!=null?act:'—';
     }
 
+    // ± delta badge vs adj target
+    let deltaBadge='<span style="color:#94a3b8">—</span>';
+    if(vsAdj!=null){
+      if(vsAdj>0) deltaBadge=`<span class="delta-pos">▲ +${vsAdj}</span>`;
+      else if(vsAdj<0) deltaBadge=`<span class="delta-neg">▼ ${vsAdj}</span>`;
+      else deltaBadge=`<span class="delta-zero">= 0</span>`;
+    } else if(vsOrig!=null && s==='past'){
+      if(vsOrig>0) deltaBadge=`<span class="delta-pos">▲ +${vsOrig}</span>`;
+      else if(vsOrig<0) deltaBadge=`<span class="delta-neg">▼ ${vsOrig}</span>`;
+      else deltaBadge=`<span class="delta-zero">= 0</span>`;
+    }
+
     return `<tr class="${trCls}">
       <td>${w}/2026</td>
       <td>${badge}</td>
       <td>${orig}</td>
       <td>${actCell}</td>
       <td>${s==='future'&&adj!=null?`<b>${adj}</b>`:'<span style="color:#94a3b8">—</span>'}</td>
-      <td>${vsOrig!=null?`<span class="chip ${vsOrig>=0?'cp':'cn'}">${vsOrig>=0?'+':''}${vsOrig}</span>`:'—'}</td>
+      <td>${deltaBadge}</td>
       <td id="cumul-${k}-${i}">${cumVal!=null?cumVal:'<span style="color:#94a3b8">—</span>'}</td>
       <td id="rem-${k}-${i}">${remGap!=null?(remGap>0?`<span class="chip cn">-${remGap}</span>`:'<span class="chip cp">✓</span>'):'—'}</td>
       <td>${cwr!=null?cwr:'—'}</td><td>${cwg!=null?cwg:'—'}</td>
@@ -891,7 +1002,7 @@ function renderTeamTab(k){
     <div style="overflow-x:auto">
     <table class="wt">
       <thead><tr>
-        <th class="left">Week</th><th class="left">Status</th><th>Orig Goal</th><th>Actual Signs</th><th>Adj Target*</th><th>vs Orig</th><th>Cumulative</th><th>Remaining Gap</th><th>CW/Rep</th><th>CW/Rep Goal</th>
+        <th class="left">Week</th><th class="left">Status</th><th>Orig Goal</th><th>Actual Signs</th><th>Adj Target*</th><th>± vs Target</th><th>Cumulative</th><th>Remaining Gap</th><th>CW/Rep</th><th>CW/Rep Goal</th>
       </tr></thead>
       <tbody>${rows}</tbody>
       <tfoot><tr>
@@ -955,7 +1066,9 @@ function renderTeamTab(k){
     <div id="strat-summary-${k}" style="margin:4px 16px 16px;padding:12px 16px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0;font-size:11px;color:#475569;line-height:1.6">
       <b>Committed tactics:</b> ${STRATEGIES.filter(s=>tStrategies[s.key]).map(s=>s.label).join(' &nbsp;·&nbsp; ')||'<span style="color:#94a3b8">None selected</span>'}
     </div>
-  </div>`;
+  </div>
+
+  ${buildHWGTCard(k)}`;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1002,6 +1115,16 @@ function renderAllTab(){
     const vsOrig=locked&&act!=null?act-origTarget:null;
     const badge=s==='past'?'<span class="badge b-past">PAST</span>':s==='current'?'<span class="badge b-cur">CURRENT</span>':'<span class="badge b-fut">UPCOMING</span>';
     const trCls=s==='past'?'tr-past':s==='current'?'tr-cur':'tr-fut';
+
+    // ± delta badge
+    let deltaBadge='<span style="color:#94a3b8">—</span>';
+    const deltaVal = vsAdj!=null ? vsAdj : vsOrig;
+    if(deltaVal!=null){
+      if(deltaVal>0) deltaBadge=`<span class="delta-pos">▲ +${deltaVal}</span>`;
+      else if(deltaVal<0) deltaBadge=`<span class="delta-neg">▼ ${deltaVal}</span>`;
+      else deltaBadge=`<span class="delta-zero">= 0</span>`;
+    }
+
     let actCell;
     if(locked){
       actCell=`<b>${act}</b>`;
@@ -1016,7 +1139,7 @@ function renderAllTab(){
       <td>${badge}</td>
       <td>${actCell}</td>
       <td>${adj!=null&&!locked?adj:'<span style="color:#94a3b8">—</span>'}</td>
-      <td id="orgwt-vs-${i}">${vsAdj!=null?`<span class="chip ${vsAdj>=0?'cp':'cn'}">${vsAdj>=0?'+':''}${vsAdj}</span>`:locked&&vsOrig!=null?`<span class="chip ${vsOrig>=0?'cp':'cn'}">${vsOrig>=0?'+':''}${vsOrig}</span>`:'<span style="color:#94a3b8">—</span>'}</td>
+      <td id="orgwt-vs-${i}">${deltaBadge}</td>
       <td id="orgwt-cumul-${i}">${cumDisplay!=null?cumDisplay:'<span style="color:#94a3b8">—</span>'}</td>
       <td id="orgwt-rem-${i}">${remGap!=null?(remGap>0?`<span class="chip cn">-${remGap}</span>`:'<span class="chip cp">✓</span>'):'<span style="color:#94a3b8">—</span>'}</td>
       <td style="min-width:160px;text-align:left">${initCell}</td>
@@ -1105,7 +1228,7 @@ function renderAllTab(){
       <thead><tr>
         <th class="left">Week</th><th class="left">Status</th>
         <th>Org Signs<br><small style="font-weight:400;font-size:10px">(Enter Actual)</small></th>
-        <th>Adj Target</th><th>vs Adj Target</th><th>Running QTD</th><th>Remaining Gap</th>
+        <th>Adj Target</th><th>± vs Target</th><th>Running QTD</th><th>Remaining Gap</th>
         <th class="left">Org Initiatives<br><small style="font-weight:400;font-size:9px;text-transform:none;letter-spacing:0">✏ Enter org-wide initiatives</small></th>
       </tr></thead>
       <tbody>${orgWalkRows}</tbody>
@@ -1161,7 +1284,9 @@ function renderAllTab(){
     <div id="cwsc-commit-panel-org" style="margin:10px 16px 16px;padding:14px 18px;border-radius:8px;${cwSummary.hasAny?'border:2px solid #16a34a;background:#f0fdf4':'border:1px dashed #cbd5e1;background:#f8fafc'}">
       ${cwSummary.html}
     </div>
-  </div>`;
+  </div>
+
+  ${buildHWGTCard('org')}`;
 }
 
 // ══════════════════════════════════════════════════════════
